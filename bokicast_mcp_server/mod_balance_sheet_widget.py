@@ -16,7 +16,7 @@ from mod_t_account_widget import TAccountWidget
 # TAccountWidget
 # --------------------------------------------------------
 class BalanceSheetWidget(QFrame):
-    BASE_HEIGHT = 300
+    BASE_HEIGHT = 250
 
     def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], conf: dict[str, Any]):
         super().__init__(parent)
@@ -25,9 +25,9 @@ class BalanceSheetWidget(QFrame):
         self.conf = conf
         self.account_dict = account_dict
 
-        self.assets = AccountEntryWidget(parent, "資産", font, "#e0e0ff")
-        self.liabilities = AccountEntryWidget(parent, "負債", font, "#e0e0ee")
-        self.equity = AccountEntryWidget(parent, "純資産", font, "#e0e0dd")
+        self.assets = AccountEntryWidget(parent, "資産", font, "#92D9C9")
+        self.liabilities = AccountEntryWidget(parent, "負債", font, "#F6A6A6")
+        self.equity = AccountEntryWidget(parent, "純資産", font, "#A8B2F0")
 
         # 初期位置設定
         self.assets.move(50, 50)
