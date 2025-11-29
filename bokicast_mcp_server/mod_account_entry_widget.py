@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QFont, QFontMetrics, QMouseEvent
 from PySide6.QtCore import Qt, QPoint
 import sys
-
+from typing import Optional, Tuple
 
 class AccountEntryWidget(QWidget):
     _drag_start_position: QPoint | None = None  # 💡 ドラッグ開始位置を保持するメンバー変数
@@ -46,7 +46,7 @@ class AccountEntryWidget(QWidget):
         self.header_label.setFont(self.font)
         self.header_label.setAlignment(Qt.AlignCenter)
         self.header_label.setStyleSheet(f"background-color: {hcolor}; border: 0px solid black;")
-        self.layout.addWidget(self.header_label)
+        self.layout.addWidget(self.header_label, alignment=Qt.AlignTop)
 
         # ---- テーブル（2列：勘定科目 / 金額） ----
         self.table = QTableWidget(0, 2)
@@ -57,8 +57,9 @@ class AccountEntryWidget(QWidget):
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.layout.addWidget(self.table)
-        
+        self.layout.addWidget(self.table, alignment=Qt.AlignTop)
+        self.layout.addStretch()
+
         # 💡 テーブル単一行の高さを計算
         # QTableWidgetの行高さを取得するため、一時的に行を追加して測定する
         self.table.insertRow(0)
@@ -225,6 +226,76 @@ class AccountEntryWidget(QWidget):
         
         # 💡 アイテム追加後、ウィジェット全体のサイズを内容に合わせて調整
         self.adjustSize() 
+
+    def _find_item_and_amount(self, item_name: str) -> Tuple[int, Optional[int]]:
+        """
+        テーブル内で勘定科目名 (列0) を検索し、
+        見つかった場合はその行インデックスと列1 (金額) の数値を返す。
+        見つからない場合は (-1, None) を返す。
+        """
+        for row in range(self.table.rowCount()):
+            # 1. 勘定科目名 (列0) をチェック
+            name_item = self.table.item(row, 0)
+            if name_item and name_item.text() == item_name:
+                # 2. 勘定科目が見つかった場合、金額 (列1) を取得
+                amount_item = self.table.item(row, 1)
+                
+                amount_value: Optional[int] = None
+                if amount_item:
+                    try:
+                        # テキストからカンマ(,)とスペース( )を取り除き、整数に変換
+                        text_value = amount_item.text().replace(',', '').strip()
+                        amount_value = int(text_value)
+                    except ValueError:
+                        # 変換エラーが発生した場合は None のまま
+                        pass
+                
+                # 行インデックスと金額を返す
+                return row, amount_value
+                
+        # 見つからなかった場合
+        return -1, None
+
+    def update_item(self, item_name: str, amount: int):
+        """
+        テーブルに勘定項目があれば金額を比較し、異なれば更新する。なければ新規追加する。
+        """
+        # 1. 統合されたメソッドで検索と金額取得を同時に行う
+        row_index, existing_amount = self._find_item_and_amount(item_name)
+
+        if row_index != -1:
+            # 2. 既存の場合: 金額を比較
+            
+            # 🌟 変更点: 金額が一致するかチェック 🌟
+            if existing_amount == amount:
+                print(f"Skip: {item_name} の金額は {amount:,} で一致しているため、更新をスキップしました。")
+                return # 一致する場合は処理を終了
+            
+            # 金額が異なる場合、更新を実行
+            
+            # ---- 金額 ----
+            amount_text = f"{amount:,} "
+            amount_item = QTableWidgetItem(amount_text)
+            
+            # 既存の行の列1（金額）を新しいアイテムで上書き
+            amount_item.setFont(self.font)
+            amount_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.table.setItem(row_index, 1, amount_item)
+            
+            # 高さ・幅・ウィジェットサイズ調整の呼び出し
+            self.table.setRowHeight(row_index, self._single_row_height) 
+            self._fix_column_widths_based_on_contents()
+            self._fix_height_based_on_contents() 
+            self.adjustSize()
+            
+            print(f"Update: {item_name} の金額を {existing_amount:,} -> {amount:,} に更新しました。")
+        else:
+            # 3. 存在しない場合: add_item を呼び出して新しい行を追加
+            self.add_item(item_name, amount)
+            print(f"Add: {item_name} を新規追加し、金額 {amount:,} を設定しました。")
+
+    def clear_all(self):
+        self.table.setRowCount(0)
 
     def get_all_items(self) -> list[tuple[str,int]]:
         """

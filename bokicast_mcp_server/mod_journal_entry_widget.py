@@ -226,8 +226,8 @@ class JournalEntryWidget(QFrame):
                 # 新規作成
                 t_widget = TAccountWidget(self.parent(), account_name, self.font)
                 t_widget.move(cur_x, cur_y)
-                t_widget.show()
                 self.account_dict[account_name] = t_widget
+            t_widget.show()
 
             # 相手勘定が1つの場合は勘定名を付加
             if len(credit_items) == 1:
@@ -244,8 +244,8 @@ class JournalEntryWidget(QFrame):
             if t_widget is None:
                 t_widget = TAccountWidget(self.parent(), account_name, self.font)
                 t_widget.move(cur_x, cur_y)
-                t_widget.show()
                 self.account_dict[account_name] = t_widget
+            t_widget.show()
 
             if len(debit_items) == 1:
                 debit_name = debit_items[0][0]

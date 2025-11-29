@@ -4,7 +4,7 @@ MCPサーバクラスとToolsを定義する
 """
 import json
 import sys
-from typing import Any
+from typing import Any, Dict
 from threading import Thread
 import logging
 import time
