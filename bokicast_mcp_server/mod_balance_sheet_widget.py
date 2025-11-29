@@ -48,6 +48,18 @@ class BalanceSheetWidget(QFrame):
         self.update_bs_pos_timer.timeout.connect(lambda: self._update_bs_pos())
         self.update_bs_pos_timer.start(200)
 
+        # ダブルクリックハンドラ接続
+        self.assets.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.assets, row, col)
+        )
+        self.liabilities.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.liabilities, row, col)
+        )
+        self.equity.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.equity, row, col)
+        )
+
+
     def _update_bs(self):
         self._update_bs_balance()
         self._update_bs_widths()
@@ -171,7 +183,40 @@ class BalanceSheetWidget(QFrame):
         equity_height = int((total_equity / self.asset_base_amount) * self.BASE_HEIGHT)
         self.equity.setFixedHeight(equity_height)
         print(f"Equity height set to: {equity_height}")
-        
+
+    # ----------------------------------------------------
+    # マウスイベント
+    # ----------------------------------------------------
+    def _on_account_clicked(self, section_widget, row, col):
+        """
+        どのセクション（資産/負債/純資産）で
+        どの行がダブルクリックされたかを受け取る
+        """
+        # 勘定科目名は常に column 0
+        account_name_item = section_widget.table.item(row, 0)
+        if not account_name_item:
+            return
+
+        account_name = account_name_item.text().strip()
+
+        t = self.account_dict.get(account_name)
+        if not t:
+            print(f"T勘定が存在しません: {account_name}")
+            return
+
+        # トグル
+        if t.isVisible():
+            t.hide()
+            print(f"[BS] {account_name} → 非表示")
+        else:
+            cell_rect = section_widget.table.visualItemRect(account_name_item)
+            local_pos = cell_rect.bottomLeft()  # cellの左下
+            global_pos = section_widget.table.mapToGlobal(local_pos)
+            parent_pos = t.parent().mapFromGlobal(global_pos)
+            t.move(parent_pos.x() + 0, parent_pos.y() + 0)
+            t.show()
+            print(f"[BS] {account_name} → 表示")
+
 # --------------------------------------------------------
 # 動作テスト
 # --------------------------------------------------------

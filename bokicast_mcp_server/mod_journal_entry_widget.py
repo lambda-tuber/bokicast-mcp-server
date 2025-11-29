@@ -213,21 +213,13 @@ class JournalEntryWidget(QFrame):
         debit_items = self.debit_widget.get_all_items()
         credit_items = self.credit_widget.get_all_items()
 
-        cur_x = self.x()
-        cur_y = self.y()
-        inc = 30
-
         # 借方
         for account_name, amount in debit_items:
-            cur_x += inc
-            cur_y += inc
             t_widget = self.account_dict.get(account_name)
             if t_widget is None:
                 # 新規作成
                 t_widget = TAccountWidget(self.parent(), account_name, self.font)
-                t_widget.move(cur_x, cur_y)
                 self.account_dict[account_name] = t_widget
-            t_widget.show()
 
             # 相手勘定が1つの場合は勘定名を付加
             if len(credit_items) == 1:
@@ -238,14 +230,10 @@ class JournalEntryWidget(QFrame):
 
         # 貸方
         for account_name, amount in credit_items:
-            cur_x += inc
-            cur_y += inc
             t_widget = self.account_dict.get(account_name)
             if t_widget is None:
                 t_widget = TAccountWidget(self.parent(), account_name, self.font)
-                t_widget.move(cur_x, cur_y)
                 self.account_dict[account_name] = t_widget
-            t_widget.show()
 
             if len(debit_items) == 1:
                 debit_name = debit_items[0][0]
@@ -383,6 +371,48 @@ class JournalEntryWidget(QFrame):
                 
         return QPoint(snapped_x, snapped_y)
 
+
+    def mouseDoubleClickEvent(self, event):
+        """仕訳に関係するすべての T勘定 を表示/非表示切り替え"""
+        debit_items = self.debit_widget.get_all_items()
+        credit_items = self.credit_widget.get_all_items()
+
+        # 関連する TAccountWidget をリストアップ
+        related_widgets = []
+
+        for account_name, _ in debit_items:
+            if account_name in self.account_dict:
+                related_widgets.append(self.account_dict[account_name])
+
+        for account_name, _ in credit_items:
+            if account_name in self.account_dict:
+                related_widgets.append(self.account_dict[account_name])
+
+        # 対象がない場合は何もしない
+        if not related_widgets:
+            print("関連するT勘定なし")
+            return
+
+        # ひとつでも表示されていれば → 全部非表示
+        any_visible = any(w.isVisible() for w in related_widgets)
+
+        if any_visible:
+            for w in related_widgets:
+                w.hide()
+            print(f"Journal {self.journal_id}: すべての T勘定 を非表示にしました")
+        else:
+            cur_x = self.x()
+            cur_y = self.y()
+            inc = 30
+            for w in related_widgets:
+                cur_x += inc
+                cur_y += inc
+                w.move(cur_x, cur_y)
+                w.show()
+
+            print(f"Journal {self.journal_id}: 関連する T勘定 をすべて表示しました")
+
+        event.accept()
 
 # --------------------------------------------------------
 # 動作テスト

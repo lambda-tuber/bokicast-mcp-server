@@ -307,6 +307,14 @@ class TAccountWidget(QFrame):
         return QPoint(snapped_x, snapped_y)
 
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.hide()         # 非表示にする
+            event.accept()
+            return
+
+        super().keyPressEvent(event)
+
 # --------------------------------------------------------
 # 動作テスト
 # --------------------------------------------------------
