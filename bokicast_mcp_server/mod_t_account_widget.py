@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt, QPoint
 import sys
 
 # 💡 AccountEntryWidget を別のファイルからインポートします
-from account_entry_widget import AccountEntryWidget
+from mod_account_entry_widget import AccountEntryWidget
 
 # --------------------------------------------------------
 # TAccountWidget

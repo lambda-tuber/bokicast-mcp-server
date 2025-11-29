@@ -13,7 +13,7 @@ from PySide6.QtCore import QTimer
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.prompts import base
 
-import pvv_mcp_server.mod_avatar_manager
+import mod_bokicast_service
 
 # ロガーの設定
 logger = logging.getLogger(__name__)
