@@ -1,0 +1,14 @@
+docs/*
+pty-mcp-server/*
+**/__pycache__/*
+**/logs/*.log
+**/*コピー*
+**/*bak*
+**/*.png
+**/.pytest_cache/*
+**/*.egg-info/*
+**/dist/*
+**/libs/*
+.pypirc
+**/released/*
+**/build/*

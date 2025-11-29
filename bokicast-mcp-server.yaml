@@ -1,0 +1,59 @@
+avatar:
+  "enabled" : False
+  "save_file" : "default"
+  "target" : "Claude"
+  "avatars":
+    10: &style_id_10     # VOICEVOX:雨晴はう ノーマル
+      "話者" : "雨晴はう"
+      "位置" : left_in  # left_out, left_in, right_in, right_out,
+      "表示" : True
+      "反転" : False
+      "縮尺" : 75
+      "画像" : "portrait"
+
+    14: &style_id_14     # VOICEVOX:冥鳴ひまり ノーマル
+      "話者" : "冥鳴ひまり"
+      "位置" : right_in  # left_out, left_in, right_in, right_out,
+      "表示" : True
+      "反転" : False
+      "縮尺" : 75
+      "画像" : "portrait"
+
+    # 8: &style_id_8     # VOICEVOX:春日部つむぎ ノーマル or 波音リツ(9:ノーマル)
+    #   "話者" : "春日部つむぎ"
+    #   "位置" : right_in  # left_out, left_in, right_in, right_out,
+    #   "表示" : True
+    #   "反転" : False
+    #   "縮尺" : 50
+    #   "画像" : "http://nicotalk.com/sozai/ゆっくりキャラ素材/ゆっくり霊夢改.zip"
+
+    # 3: &style_id_3     # VOICEVOX:ずんだもん ノーマル or (7:ツンツン)
+    #   "話者" : "ずんだもん"
+    #   "位置" : left_in  # left_out, left_in, right_in, right_out,
+    #   "表示" : True
+    #   "反転" : False
+    #   "縮尺" : 50
+    #   "画像" : "http://nicotalk.com/sozai/ゆっくりキャラ素材/ゆっくり魔理沙改.zip"
+
+    # 0:  &style_id_0   # VOICEVOX:四国めたん あまあま
+    #   "話者" : "四国めたん"
+    #   "位置" : right_center  # left_out, left_in, right_in, right_out,
+    #   "表示" : True
+    #   "反転" : False
+    #   "縮尺" : 50
+    #   "画像" : "C:\\work\\lambda-tuber\\ai-trial\\mission16\\docs\\josei_20_pw.zip"
+    # 2:  *style_id_0   # VOICEVOX:四国めたん ノーマル
+    # 4:  *style_id_0   # VOICEVOX:四国めたん セクシー
+    # 6:  *style_id_0   # VOICEVOX:四国めたん ツンツン
+    # 36: *style_id_0   # VOICEVOX:四国めたん ささやき
+    # 37: *style_id_0   # VOICEVOX:四国めたん ヒソヒソ
+    # 11: &style_id_11     # VOICEVOX:玄野武宏 (CV: ガロ) ノーマル
+    #   "話者" : "玄野武宏"
+    #   "位置" : left_center  # left_out, left_in, right_in, right_out,
+    #   "表示" : True
+    #   "反転" : True
+    #   "縮尺" : 50
+    #   "画像" : "C:\\work\\lambda-tuber\\ai-trial\\mission16\\docs\\animal_01_neko"
+    # 39: *style_id_11     # VOICEVOX:玄野武宏 (CV: ガロ) 喜び
+    # 40: *style_id_11     # VOICEVOX:玄野武宏 (CV: ガロ) ツンギレ
+    # 41: *style_id_11     # VOICEVOX:玄野武宏 (CV: ガロ) 悲しみ

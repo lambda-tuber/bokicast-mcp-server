@@ -1,0 +1,24 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.lambda-tuber/bokicast-mcp-server",
+  "description": "MCP Server for VOICEVOX implemented in Python",
+  "repository": {
+    "url": "https://github.com/lambda-tuber/bokicast-mcp-server",
+    "source": "github"
+  },
+  "version": "0.5.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "bokicast-mcp-server",
+      "version": "0.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+      ]
+    }
+  ]
+}
+

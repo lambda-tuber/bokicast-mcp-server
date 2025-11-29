@@ -1,0 +1,50 @@
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bokicast-mcp-server"
+version = "0.0.1"
+description = "MCP server for VOICEVOX text-to-speech synthesis"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    {name = "Aska Lanclaude", email = "crypto.tuber.magika@gmail.com"}
+]
+dependencies = [
+    "mcp>=0.1.0",
+    "requests>=2.31.0",
+    "numpy>=1.24.0",
+    "PySide6>=6.9.3",
+    "pygetwindow>=0.0.9",
+    "pyyaml>=6.0.3",
+    "Pillow>=11.3.0"
+]
+urls = { "Homepage" = "https://github.com/lambda-tuber/bokicast-mcp-server" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["VOICEVOX", "MCP", "FastMCP", "TTS", "AI", "voice synthesis"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+bokicast-mcp-server = "bokicast_mcp_server.main:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bokicast_mcp_server*"]
+exclude = ["tests*"]
+
