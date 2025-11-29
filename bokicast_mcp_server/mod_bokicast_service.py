@@ -1,4 +1,5 @@
 import sys
+from typing import Any
 from PySide6.QtWidgets import QWidget, QLabel, QApplication
 from PySide6.QtCore import Qt, QTimer, QPoint, Slot
 from PySide6.QtGui import QPixmap, QShortcut, QKeySequence
@@ -17,26 +18,45 @@ from mod_journal_entry_widget import JournalEntryWidget
 logger = logging.getLogger(__name__)
 
 class BokicastService(QWidget):
-    
-    def __init__(self):
-        super().__init__()
-        logger.info(f"BokicastService.__init__: called.")
-        self.account_dict: dict[str, TAccountWidget] = {}
+    _instance = None
 
-        self.main_widget = QWidget()
-        self.main_widget.setWindowTitle("Main Container (Floater Test)")
-        self.main_widget.setGeometry(0, 0, 100, 100)
-        self.main_widget.setStyleSheet("background-color: #F0F0F0;")
-        self.main_widget.show()
+    @classmethod
+    def instance(cls, conf: dict[str, Any]):
+        if cls._instance is None:
+            cls._instance = cls(conf)
+            
+        return cls._instance
 
-        self.font = QFont("MS Gothic", 10)
+    def __init__(self, conf: dict[str, Any]):
+        if BokicastService._instance is None:
+            super().__init__()
+            self.conf = conf
+            logger.info(f"BokicastService.__init__: called.")
+            self.account_dict: dict[str, TAccountWidget] = {}
+
+            self.main_widget = QWidget()
+            self.main_widget.setWindowTitle("Bokicast MCP Server")
+            self.main_widget.setStyleSheet("background-color: #F0F0F0;")
+            # self.main_widget.setWindowFlags(
+            #     Qt.Window | 
+            #     Qt.FramelessWindowHint | 
+            #     Qt.WindowStaysOnTopHint
+            # )
+            self.main_widget.setGeometry(0, 0, 500, 10)
+            self.main_widget.move(0, 100)
+            self.main_widget.show()
+            self.font = QFont("MS Gothic", 10)
+
     #
     # セッター
     #
-    @Slot(str)
-    def journal_entry(self, journal_data):
-        j4 = JournalEntryWidget(self.main_widget, "J-004", self.font, self.account_dict)
+    @Slot(dict)
+    def journal_entry(self, journal_data: dict):
+        """
+        仕訳データを受け取り、JournalEntryWidgetを生成して表示します。
+
         journal_data = {
+            "journal_id" : "J-004",
             "debit": [
                 {"account": "仕入", "amount": 1000},
                 {"account": "荷役費", "amount": 500},
@@ -47,13 +67,41 @@ class BokicastService(QWidget):
             ],
             "remarks": "仕訳ID004の例"
         }
-        j4.show()
-        j4.add_journal(journal_data)
-    
+        """
+
+        journal_id = journal_data.get("journal_id", "NO_ID")
+        logger.info(f"journal_entry: Processing Journal ID: {journal_id}")
+        
+        j = JournalEntryWidget(self.main_widget, journal_id, self.font, self.account_dict)
+        
+        main_x = self.main_widget.x()
+        main_y = self.main_widget.y()
+        j.move(main_x + 30, main_y + 30)
+        j.show()
+        
+        j.add_journal(journal_data)
+
 
 if __name__ == "__main__":
     
     app = QApplication(sys.argv)
-    s = BokicastService()
-    s.journal_entry(None)
+    s = BokicastService.instance()
+
+    # 渡すべき仕訳データの例を定義
+    test_journal_data = {
+        "journal_id": "J-004", # 👈 journal_id を追加
+        "debit": [
+            {"account": "仕入", "amount": 1000},
+            {"account": "荷役費", "amount": 500},
+            {"account": "雑費", "amount": 500}
+        ],
+        "credit": [
+            {"account": "買掛金", "amount": 2000}
+        ],
+        "remarks": "仕訳ID004の例"
+    }
+
+    # 修正: 辞書データを渡す
+    s.journal_entry(test_journal_data) 
+    
     sys.exit(app.exec())

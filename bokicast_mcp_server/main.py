@@ -11,7 +11,7 @@ import yaml
 import os
 from importlib.metadata import version, PackageNotFoundError
 
-from bokicast_mcp_server import mod_service
+import mod_service
 
 #
 # global setting.

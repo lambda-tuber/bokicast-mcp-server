@@ -213,12 +213,19 @@ class JournalEntryWidget(QFrame):
         debit_items = self.debit_widget.get_all_items()
         credit_items = self.credit_widget.get_all_items()
 
+        cur_x = self.x()
+        cur_y = self.y()
+        inc = 30
+
         # 借方
         for account_name, amount in debit_items:
+            cur_x += inc
+            cur_y += inc
             t_widget = self.account_dict.get(account_name)
             if t_widget is None:
                 # 新規作成
                 t_widget = TAccountWidget(self.parent(), account_name, self.font)
+                t_widget.move(cur_x, cur_y)
                 t_widget.show()
                 self.account_dict[account_name] = t_widget
 
@@ -231,9 +238,12 @@ class JournalEntryWidget(QFrame):
 
         # 貸方
         for account_name, amount in credit_items:
+            cur_x += inc
+            cur_y += inc
             t_widget = self.account_dict.get(account_name)
             if t_widget is None:
                 t_widget = TAccountWidget(self.parent(), account_name, self.font)
+                t_widget.move(cur_x, cur_y)
                 t_widget.show()
                 self.account_dict[account_name] = t_widget
 
