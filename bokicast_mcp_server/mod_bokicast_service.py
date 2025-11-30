@@ -43,11 +43,11 @@ class BokicastService(QWidget):
         self.main_widget = QWidget()
         self.main_widget.setWindowTitle("Bokicast MCP Server")
         self.main_widget.setStyleSheet("background-color: #F0F0F0;")
-        # self.main_widget.setWindowFlags(
-        #     Qt.Window | 
-        #     Qt.FramelessWindowHint | 
-        #     Qt.WindowStaysOnTopHint
-        # )
+        self.main_widget.setWindowFlags(
+            Qt.Window | 
+            Qt.FramelessWindowHint | 
+            Qt.WindowStaysOnTopHint
+        )
         self.main_widget.setGeometry(0, 0, 500, 10)
         self.main_widget.move(0, 100)
         #self.main_widget.show()
