@@ -11,7 +11,7 @@ released/*
 *.avi
 *.png
 *.bak
-pvv_mcp_server/**/*.py
+bokicast_mcp_server/**/*.py
 requirements.txt
 server.json
 pyproject.toml

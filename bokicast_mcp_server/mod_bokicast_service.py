@@ -51,7 +51,7 @@ class BokicastService(QWidget):
         self.main_widget.setGeometry(0, 0, 500, 10)
         self.main_widget.move(0, 100)
         #self.main_widget.show()
-        self.font = QFont("MS Gothic", 10)
+        self.font = QFont("MS Gothic", 14)
 
         self.setup_account_dict(conf)
         self.bspl = BsPlWidget(self.main_widget, self.font, self.account_dict, self.conf)
