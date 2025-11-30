@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QFont, QFontMetrics, QMouseEvent
 from PySide6.QtCore import Qt, QPoint
 import sys
+import json
 from typing import Any, List, Dict
 
 # 💡 AccountEntryWidget を別のファイルからインポートします
@@ -244,14 +245,14 @@ class TAccountWidget(QFrame):
         debit_items_raw = self.debit_widget.get_all_items()
         credit_items_raw = self.credit_widget.get_all_items()
         
-        debit_data = format_items_to_json(debit_items_raw)
-        credit_data = format_items_to_json(credit_items_raw)
+        debit_data = self._format_items_to_json(debit_items_raw)
+        credit_data = self._format_items_to_json(credit_items_raw)
         
         # 残高の取得
         balance = self.get_balance()
 
         result = {
-            "勘定": self.account_name,
+            "勘定": self.account_name_label.text(),
             "借方": debit_data,
             "貸方": credit_data,
             "残高": balance
@@ -259,7 +260,7 @@ class TAccountWidget(QFrame):
 
         return json.dumps(result, ensure_ascii=False, indent=4)
 
-    def format_items_to_json(self, items: list[tuple[str, int]]) -> List[Dict[str, Any]]:
+    def _format_items_to_json(self, items: list[tuple[str, int]]) -> List[Dict[str, Any]]:
         formatted_list = []
         for label, amount in items:
             formatted_list.append({

@@ -139,6 +139,48 @@ async def main():
                 except Exception as e:
                     print(f"Tool execution error: {e}")
 
+
+                print("\n--- Executing 'get_pl' Tool ---")
+                
+                try:
+                    result = await session.call_tool(
+                        "get_pl",
+                        arguments={}
+                    )
+
+                    # 結果の表示
+                    for content in result.content:
+                        if isinstance(content, ContentBlock) and hasattr(content, "text"):
+                            print(f" > {content.text}")
+                        else:
+                            print(f" > {content}")
+
+                    print("Tool execution succeeded.")
+                except Exception as e:
+                    print(f"Tool execution error: {e}")
+
+
+                print("\n--- Executing 'get_t_account' Tool ---")
+                
+                try:
+                    result = await session.call_tool(
+                        "get_t_account",
+                        arguments={"accout_name": "資本金"}
+                    )
+
+                    # 結果の表示
+                    for content in result.content:
+                        if isinstance(content, ContentBlock) and hasattr(content, "text"):
+                            print(f" > {content.text}")
+                        else:
+                            print(f" > {content}")
+
+                    print("Tool execution succeeded.")
+
+                except Exception as e:
+                    print(f"Tool execution error: {e}")
+
+
                 time.sleep(15)
 
     except Exception as e:

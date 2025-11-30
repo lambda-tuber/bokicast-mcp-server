@@ -167,7 +167,7 @@ async def get_pl() -> str:
 # MCP I/F
 #
 @mcp.tool()
-async def get_t_account(acc_name) -> str:
+async def get_t_account(accout_name: str) -> str:
     """
     T字勘定の借方、貸方データ(JSONデータ文字列)を返します。
 
@@ -193,7 +193,7 @@ async def get_t_account(acc_name) -> str:
         logger.info("get_pl tool called.")
 
         bokicast = BokicastService.instance(_config)
-        return bokicast.get_t_account(acc_name) 
+        return bokicast.get_account_data(accout_name) 
 
     except Exception as e:
         return f"エラーが発生しました: {str(e)}"

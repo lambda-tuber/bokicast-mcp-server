@@ -1,4 +1,4 @@
 @echo off
 
-mcpb pack . download/pvv-mcp-server-0.5.0.mcpb
+mcpb pack . bokicast-mcp-server-0.0.1.mcpb
 

@@ -12,3 +12,4 @@ pty-mcp-server/*
 .pypirc
 **/released/*
 **/build/*
+*.mcpb
