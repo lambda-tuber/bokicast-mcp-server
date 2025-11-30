@@ -14,7 +14,6 @@ from PySide6.QtCore import Qt, QPoint
 
 from mod_t_account_widget import TAccountWidget
 from mod_journal_entry_widget import JournalEntryWidget
-from mod_balance_sheet_widget import BalanceSheetWidget
 from mod_bs_pl_widget import BsPlWidget
 
 # ロガーの設定
