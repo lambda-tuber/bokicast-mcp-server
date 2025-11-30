@@ -7,8 +7,11 @@ from PySide6.QtCore import Qt, QPoint
 import sys
 
 # 💡 AccountEntryWidget をインポート
-from mod_account_entry_widget import AccountEntryWidget
-from mod_t_account_widget import TAccountWidget
+from bokicast_mcp_server.mod_account_entry_widget import AccountEntryWidget
+from bokicast_mcp_server.mod_t_account_widget import TAccountWidget
+
+import logging
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------
 # JournalEntryWidget
@@ -206,7 +209,7 @@ class JournalEntryWidget(QFrame):
 
     def commit(self):
         if self.balance_status != "✔ 正常":
-            print(f"Journal {self.journal_id} 不一致のため commit 中止")
+            logger.debug(f"Journal {self.journal_id} 不一致のため commit 中止")
             return
 
         # debit/credit をテーブルから取得
@@ -241,7 +244,7 @@ class JournalEntryWidget(QFrame):
             else:
                 t_widget.add_credit(self.journal_id, amount)
 
-        print(f"Journal {self.journal_id} を commit 完了")
+        logger.debug(f"Journal {self.journal_id} を commit 完了")
 
     # ----------------------------------------------------
     # 内部処理: 幅同期
@@ -390,7 +393,7 @@ class JournalEntryWidget(QFrame):
 
         # 対象がない場合は何もしない
         if not related_widgets:
-            print("関連するT勘定なし")
+            logger.debug("関連するT勘定なし")
             return
 
         # ひとつでも表示されていれば → 全部非表示
@@ -399,7 +402,7 @@ class JournalEntryWidget(QFrame):
         if any_visible:
             for w in related_widgets:
                 w.hide()
-            print(f"Journal {self.journal_id}: すべての T勘定 を非表示にしました")
+            logger.debug(f"Journal {self.journal_id}: すべての T勘定 を非表示にしました")
         else:
             cur_x = self.x()
             cur_y = self.y()
@@ -410,7 +413,7 @@ class JournalEntryWidget(QFrame):
                 w.move(cur_x, cur_y)
                 w.show()
 
-            print(f"Journal {self.journal_id}: 関連する T勘定 をすべて表示しました")
+            logger.debug(f"Journal {self.journal_id}: 関連する T勘定 をすべて表示しました")
 
         event.accept()
 
@@ -466,11 +469,11 @@ if __name__ == "__main__":
     w2.show()
     w3.show()
 
-    print("--- AccountEntryWidget Test ---")
-    print(f"w1 (資産) 合計: {w1.get_total_amount():,.0f}")
-    print(f"w2 (負債) 合計: {w2.get_total_amount():,.0f}")
-    print(f"w3 (純資産) 合計: {w3.get_total_amount():,.0f}")
-    print("-------------------------------")
+    logger.debug("--- AccountEntryWidget Test ---")
+    logger.debug(f"w1 (資産) 合計: {w1.get_total_amount():,.0f}")
+    logger.debug(f"w2 (負債) 合計: {w2.get_total_amount():,.0f}")
+    logger.debug(f"w3 (純資産) 合計: {w3.get_total_amount():,.0f}")
+    logger.debug("-------------------------------")
     
     # ---------------------------------------------------
     # TAccountWidget のテスト

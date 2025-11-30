@@ -11,7 +11,7 @@ import yaml
 import os
 from importlib.metadata import version, PackageNotFoundError
 
-import mod_service
+from bokicast_mcp_server import mod_service
 
 #
 # global setting.
@@ -25,7 +25,9 @@ logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] [%(levelname)s] %(name)s: %(message)s',
     datefmt='%H:%M:%S',
+    force=True
 )
+logger = logging.getLogger(__name__)
 
 #
 # utility

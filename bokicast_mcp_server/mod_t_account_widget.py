@@ -5,9 +5,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QFont, QFontMetrics, QMouseEvent
 from PySide6.QtCore import Qt, QPoint
 import sys
+from typing import Any, List, Dict
 
 # 💡 AccountEntryWidget を別のファイルからインポートします
-from mod_account_entry_widget import AccountEntryWidget
+from bokicast_mcp_server.mod_account_entry_widget import AccountEntryWidget
+
+import logging
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------
 # TAccountWidget
@@ -212,7 +216,58 @@ class TAccountWidget(QFrame):
         self.balance_label.setStyleSheet(
             f"color: {color}; border: none; border-top: 3px double black; background-color: #A0E0A0; {padding_style}"
         )
+
+    def get_account_data(self):
+        """
+        T字勘定の借方、貸方データ(JSONデータ文字列)を返します。
+
+        Args: なし
+        Returns: 
+            str: T字勘定の借方、貸方データ(JSONデータ文字列)
+            Data Example:
+            {
+                "勘定": "売上" 
+                "借方": [
+                    {"ラベル": "J001-仕入", "金額": 100000},
+                    {"ラベル": "J002", "金額": 5000},
+                    {"ラベル": "J003-雑費", "金額": 2000}
+                ],
+                "貸方": [
+                    {"ラベル": "J003-売上高", "金額": 150000},
+                    {"ラベル": "J004", "金額": 3000}
+                ],
+                "残高": 200000
+            }
+        """
+        # データの収集
+        # ここで debit_widget.get_all_items() が呼び出されることを前提とします
+        debit_items_raw = self.debit_widget.get_all_items()
+        credit_items_raw = self.credit_widget.get_all_items()
         
+        debit_data = format_items_to_json(debit_items_raw)
+        credit_data = format_items_to_json(credit_items_raw)
+        
+        # 残高の取得
+        balance = self.get_balance()
+
+        result = {
+            "勘定": self.account_name,
+            "借方": debit_data,
+            "貸方": credit_data,
+            "残高": balance
+        }
+
+        return json.dumps(result, ensure_ascii=False, indent=4)
+
+    def format_items_to_json(self, items: list[tuple[str, int]]) -> List[Dict[str, Any]]:
+        formatted_list = []
+        for label, amount in items:
+            formatted_list.append({
+                "ラベル": label,
+                "金額": amount
+            })
+        return formatted_list
+
     # ----------------------------------------------------
     # TAccountWidget用 マウスイベントハンドラ (ドラッグ/スナップ機能)
     # ----------------------------------------------------
@@ -366,11 +421,11 @@ if __name__ == "__main__":
     w2.show()
     w3.show()
 
-    print("--- AccountEntryWidget Test ---")
-    print(f"w1 (資産) 合計: {w1.get_total_amount():,.0f}")
-    print(f"w2 (負債) 合計: {w2.get_total_amount():,.0f}")
-    print(f"w3 (純資産) 合計: {w3.get_total_amount():,.0f}")
-    print("-------------------------------")
+    logger.debug("--- AccountEntryWidget Test ---")
+    logger.debug(f"w1 (資産) 合計: {w1.get_total_amount():,.0f}")
+    logger.debug(f"w2 (負債) 合計: {w2.get_total_amount():,.0f}")
+    logger.debug(f"w3 (純資産) 合計: {w3.get_total_amount():,.0f}")
+    logger.debug("-------------------------------")
     
     # ---------------------------------------------------
     # TAccountWidget のテスト

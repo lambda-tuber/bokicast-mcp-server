@@ -7,6 +7,9 @@ from PySide6.QtCore import Qt, QPoint
 import sys
 from typing import Optional, Tuple
 
+import logging
+logger = logging.getLogger(__name__)
+
 class AccountEntryWidget(QWidget):
     _drag_start_position: QPoint | None = None  # 💡 ドラッグ開始位置を保持するメンバー変数
     _single_row_height: int = 0
@@ -271,7 +274,7 @@ class AccountEntryWidget(QWidget):
             
             # 🌟 変更点: 金額が一致するかチェック 🌟
             if existing_amount == amount:
-                print(f"Skip: {item_name} の金額は {amount:,} で一致しているため、更新をスキップしました。")
+                logger.debug(f"Skip: {item_name} の金額は {amount:,} で一致しているため、更新をスキップしました。")
                 return # 一致する場合は処理を終了
             
             # 金額が異なる場合、更新を実行
@@ -291,11 +294,11 @@ class AccountEntryWidget(QWidget):
             self._fix_height_based_on_contents() 
             self.adjustSize()
             
-            print(f"Update: {item_name} の金額を {existing_amount:,} -> {amount:,} に更新しました。")
+            logger.debug(f"Update: {item_name} の金額を {existing_amount:,} -> {amount:,} に更新しました。")
         else:
             # 3. 存在しない場合: add_item を呼び出して新しい行を追加
             self.add_item(item_name, amount)
-            print(f"Add: {item_name} を新規追加し、金額 {amount:,} を設定しました。")
+            logger.debug(f"Add: {item_name} を新規追加し、金額 {amount:,} を設定しました。")
 
     def clear_all(self):
         self.table.setRowCount(0)
@@ -344,7 +347,7 @@ class AccountEntryWidget(QWidget):
                     total += amount
                 except ValueError:
                     # 変換エラーが発生した場合（データが予期しない形式の場合）
-                    print(f"警告: 行 {row} の金額 '{amount_text}' を数値に変換できませんでした。")
+                    logger.debug(f"警告: 行 {row} の金額 '{amount_text}' を数値に変換できませんでした。")
                     continue
         
         return total
@@ -482,9 +485,9 @@ if __name__ == "__main__":
     w2.show()
     w3.show()
 
-    print(f"w1 : {w1.get_total_amount()}")
-    print(f"w2 : {w2.get_total_amount()}")
-    print(f"w3 : {w3.get_total_amount()}")
+    logger.debug(f"w1 : {w1.get_total_amount()}")
+    logger.debug(f"w2 : {w2.get_total_amount()}")
+    logger.debug(f"w3 : {w3.get_total_amount()}")
 
     main_widget.show()
 

@@ -7,10 +7,14 @@ from PySide6.QtCore import Qt, QPoint, QTimer
 import sys
 from typing import Any, Dict, List
 import yaml
+import json
 
 # 💡 AccountEntryWidget を別のファイルからインポートします
-from mod_account_entry_widget import AccountEntryWidget
-from mod_t_account_widget import TAccountWidget
+from bokicast_mcp_server.mod_account_entry_widget import AccountEntryWidget
+from bokicast_mcp_server.mod_t_account_widget import TAccountWidget
+
+import logging
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------
 # TAccountWidget
@@ -44,12 +48,6 @@ class BsPlWidget(QFrame):
         self.assets.move(center_x, center_y)
         self.expense.move(self.assets.x(), self.assets.y() + self.assets.height()+20)
 
-        self.assets.show()
-        self.liabilities.show()
-        self.equity.show()
-        self.expense.show()
-        self.revenue.show()
-
         self.update_bspl_timer = QTimer()
         self.update_bspl_timer.timeout.connect(lambda: self._update_bspl())
         self.update_bspl_timer.start(1000)
@@ -61,6 +59,13 @@ class BsPlWidget(QFrame):
         self.update_pl_pos_timer = QTimer()
         self.update_pl_pos_timer.timeout.connect(lambda: self._update_pl_pos())
         self.update_pl_pos_timer.start(200)
+
+        self.assets.show()
+        self.liabilities.show()
+        self.equity.show()
+        self.expense.show()
+        self.revenue.show()
+
 
         # ダブルクリックハンドラ接続
         self.assets.table.cellDoubleClicked.connect(
@@ -138,9 +143,9 @@ class BsPlWidget(QFrame):
                 if balance != 0:
                     entry_widget.update_item(account_name, balance)
                 else:
-                    print(f"{account_name} の残高は0のためスキップ。")
+                    logger.debug(f"{account_name} の残高は0のためスキップ。")
             else:
-                print(f"TAccountWidget ({account_name}) が account_dict に見つかりません。")
+                logger.debug(f"TAccountWidget ({account_name}) が account_dict に見つかりません。")
 
     def _update_bs_pos(self):
         # 1. Assetsの位置は固定
@@ -208,7 +213,7 @@ class BsPlWidget(QFrame):
         """
         
         if self.asset_base_amount == 0:
-            print("asset_base_amountがゼロです。高さの計算をスキップします。")
+            logger.debug("asset_base_amountがゼロです。高さの計算をスキップします。")
             return
  
         minimum_height = self.assets.get_minimum_height()
@@ -231,31 +236,31 @@ class BsPlWidget(QFrame):
         # 計算式: (現在の合計金額 / 基準合計金額) * 基準高さ
         asset_height = int((total_assets / self.asset_base_amount) * self.BASE_HEIGHT)
         self.assets.setFixedHeight(asset_height)
-        print(f"Assets height set to: {asset_height}")
+        logger.debug(f"Assets height set to: {asset_height}")
 
         # 3. 負債ウィジェットの高さ計算と設定
         # 負債の高さも、資産の基準を基に計算されます。
         liabilities_height = int((total_liabilities / self.asset_base_amount) * self.BASE_HEIGHT)
         self.liabilities.setFixedHeight(liabilities_height)
-        print(f"Liabilities height set to: {liabilities_height}")
+        logger.debug(f"Liabilities height set to: {liabilities_height}")
 
         # 4. 純資産ウィジェットの高さ計算と設定
         equity_height = int((total_equity / self.asset_base_amount) * self.BASE_HEIGHT)
         self.equity.setFixedHeight(equity_height)
-        print(f"Equity height set to: {equity_height}")
+        logger.debug(f"Equity height set to: {equity_height}")
 
         # 5. 費用ウィジェットの高さ計算と設定
         # 費用は、基準金額と基準高さを基に計算されます。
         # 計算式: (現在の合計金額 / 基準合計金額) * 基準高さ
         expense_height = int((total_expense / self.asset_base_amount) * self.BASE_HEIGHT)
         self.expense.setFixedHeight(minimum_height + expense_height)
-        print(f"Expense height set to: {minimum_height} + {expense_height}")
+        logger.debug(f"Expense height set to: {minimum_height} + {expense_height}")
 
         # 6. 収益ウィジェットの高さ計算と設定
         # 収益の高さも、費用の基準を基に計算されます。
         revenue_height = int((total_revenue / self.asset_base_amount) * self.BASE_HEIGHT)
         self.revenue.setFixedHeight(minimum_height + revenue_height)
-        print(f"Revenue height set to: {minimum_height} + {revenue_height}")
+        logger.debug(f"Revenue height set to: {minimum_height} + {revenue_height}")
 
     # ----------------------------------------------------
     # マウスイベント
@@ -274,7 +279,7 @@ class BsPlWidget(QFrame):
         t = self.account_dict.get(account_name)
 
         if not t:
-            print(f"T勘定が存在しません: {account_name}")
+            logger.debug(f"T勘定が存在しません: {account_name}")
             return
 
         # -------------------------
@@ -282,7 +287,7 @@ class BsPlWidget(QFrame):
         # -------------------------
         if t.isVisible():
             t.hide()
-            print(f"[BS] {account_name} → 非表示")
+            logger.debug(f"[BS] {account_name} → 非表示")
             return
 
         # -------------------------
@@ -315,8 +320,94 @@ class BsPlWidget(QFrame):
         t.show()
         t.raise_()
 
-        print(f"[BS] {account_name} → 表示@local_pos:{local_pos}, global_pos:{global_pos}, logical_global_pos:{logical_global_pos}, parent_pos:{parent_pos}, dpr:{dpr} ")
+        logger.debug(f"[BS] {account_name} → 表示@local_pos:{local_pos}, global_pos:{global_pos}, logical_global_pos:{logical_global_pos}, parent_pos:{parent_pos}, dpr:{dpr} ")
         
+
+    def get_bs_data(self):
+        """
+        貸借対照表データ(JSONデータ文字列)を返します。
+
+        Args: なし
+        Returns: 
+            str: 貸借対照表データ(JSONデータ文字列)
+            Data Example:
+            {
+                "資産": {
+                    "現金": 150000,
+                    "売掛金": 50000,
+                    "備品": 80000
+                },
+                "負債": {
+                    "買掛金": 60000,
+                    "短期借入金": 40000
+                },
+                "純資産": {
+                    "資本金": 100000,
+                    "利益剰余金": 90000
+                }
+            }
+        """
+        data = {
+                    "資産": self._collect_category_dict("資産"),
+                    "負債": self._collect_category_dict("負債"),
+                    "純資産": self._collect_category_dict("純資産")
+                }
+        
+        return json.dumps(data, ensure_ascii=False, indent=4)
+
+
+    def get_pl_data(self):
+        """
+        損益計算書データ(JSONデータ文字列)を返します。
+
+        Args: なし
+        Returns: 
+            str: 損益計算書データ(JSONデータ文字列)
+            Data Example:
+            {
+                "費用": {
+                    "仕入": 100000,
+                    "荷役費": 5000,
+                    "雑費": 2000
+                },
+                "収益": {
+                    "売上高": 150000,
+                    "雑収入": 3000
+                }
+            }
+        """
+
+        data = {
+                    "費用": self._collect_category_dict("費用"),
+                    "収益": self._collect_category_dict("収益")
+                }
+
+        return json.dumps(data, ensure_ascii=False, indent=4)
+
+    def _collect_category_dict(self, category_name: str) -> Dict[str, int]:
+        """
+        指定されたカテゴリの勘定科目と残高の辞書を作成するヘルパーメソッド
+        形式: {"科目名": 金額, ...}
+        """
+        result = {}
+        accounts_list = self.conf.get('勘定', {}).get(category_name, [])
+
+        for account_name in accounts_list:
+            if account_name in self.account_dict:
+                t_account = self.account_dict[account_name]
+                balance = t_account.get_balance()
+
+                # 負債・純資産・収益は貸方(マイナス)で管理されているため絶対値にする
+                if category_name in ['負債', '純資産', '収益']:
+                    balance = abs(balance)
+
+                # 残高が0でない場合のみ追加
+                if balance != 0:
+                    result[account_name] = balance
+        
+        return result
+
+
 # --------------------------------------------------------
 # 動作テスト
 # --------------------------------------------------------
@@ -326,7 +417,7 @@ if __name__ == "__main__":
     with open(yaml_file, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f) or {}
 
-    print(config)
+    logger.debug(config)
 
     account_to_category: Dict[str, str] = {}
     for category, accounts in config.get('勘定', {}).items():
@@ -350,7 +441,7 @@ if __name__ == "__main__":
         account_dict[account_name] = t_account
 
         if initial_balance == 0:
-            print(f"  -> {account_name}: 残高が0のためスキップ")
+            logger.debug(f"  -> {account_name}: 残高が0のためスキップ")
             continue
 
         category = account_to_category.get(account_name)
@@ -360,12 +451,15 @@ if __name__ == "__main__":
         elif category == '負債' or category == '純資産' or category == '収益':
             t_account.add_credit("期首残高", initial_balance)
         else:
-            print(f"  -> {account_name}: 勘定カテゴリ ({category}) が不明。期首残高は未登録。")
+            logger.debug(f"  -> {account_name}: 勘定カテゴリ ({category}) が不明。期首残高は未登録。")
 
 
 
-    bs = BsPlWidget(main_widget, font, account_dict, config)
+    bspl = BsPlWidget(main_widget, font, account_dict, config)
     
     main_widget.show()
+
+    print(bspl.get_bs_data())
+    print(bspl.get_pl_data())
 
     sys.exit(app.exec())

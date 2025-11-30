@@ -1,6 +1,7 @@
 import sys
 import yaml
-from typing import Any
+import json
+from typing import Any, List, Dict
 from PySide6.QtWidgets import QWidget, QLabel, QApplication
 from PySide6.QtCore import Qt, QTimer, QPoint, Slot
 from PySide6.QtGui import QPixmap, QShortcut, QKeySequence
@@ -12,9 +13,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QFont, QFontMetrics, QMouseEvent
 from PySide6.QtCore import Qt, QPoint
 
-from mod_t_account_widget import TAccountWidget
-from mod_journal_entry_widget import JournalEntryWidget
-from mod_bs_pl_widget import BsPlWidget
+from bokicast_mcp_server.mod_t_account_widget import TAccountWidget
+from bokicast_mcp_server.mod_journal_entry_widget import JournalEntryWidget
+from bokicast_mcp_server.mod_bs_pl_widget import BsPlWidget
+
 
 # ロガーの設定
 logger = logging.getLogger(__name__)
@@ -48,11 +50,11 @@ class BokicastService(QWidget):
         # )
         self.main_widget.setGeometry(0, 0, 500, 10)
         self.main_widget.move(0, 100)
-        self.main_widget.show()
+        #self.main_widget.show()
         self.font = QFont("MS Gothic", 10)
 
         self.setup_account_dict(conf)
-        self.bs = BsPlWidget(self.main_widget, self.font, self.account_dict, self.conf)
+        self.bspl = BsPlWidget(self.main_widget, self.font, self.account_dict, self.conf)
 
     def setup_account_dict(self, conf: dict[str, Any]):
         account_to_category: Dict[str, str] = {}
@@ -66,7 +68,7 @@ class BokicastService(QWidget):
             self.account_dict[account_name] = t_account
 
             if initial_balance == 0:
-                print(f"  -> {account_name}: 残高が0のためスキップ")
+                logger.debug(f"  -> {account_name}: 残高が0のためスキップ")
                 continue
 
             category = account_to_category.get(account_name)
@@ -76,14 +78,14 @@ class BokicastService(QWidget):
             elif category == '負債' or category == '純資産' or category == '収益':
                 t_account.add_credit("期首残高", initial_balance)
             else:
-                print(f"  -> {account_name}: 勘定カテゴリ ({category}) が不明。期首残高は未登録。")
+                logger.debug(f"  -> {account_name}: 勘定カテゴリ ({category}) が不明。期首残高は未登録。")
 
 
     #
     # セッター
     #
-    @Slot(dict)
-    def journal_entry(self, journal_data: dict):
+    @Slot(str)
+    def journal_entry(self, journal_str: str):
         """
         仕訳データを受け取り、JournalEntryWidgetを生成して表示します。
 
@@ -100,7 +102,7 @@ class BokicastService(QWidget):
             "remarks": "仕訳ID004の例"
         }
         """
-
+        journal_data = json.loads(journal_str)
         journal_id = journal_data.get("journal_id", "NO_ID")
         logger.info(f"journal_entry: Processing Journal ID: {journal_id}")
         
@@ -117,6 +119,22 @@ class BokicastService(QWidget):
 
         j.move(center_x, center_y)
         j.show()
+
+    def get_bs_data(self):
+        return self.bspl.get_bs_data()
+
+    def get_pl_data(self):
+        return self.bspl.get_pl_data()
+
+    def get_account_data(self, acc_name):
+
+        if acc_name not in self.account_dict:
+            logger.warning(f"Account '{acc_name}' not found.")
+            return json.dumps({"error": "Account not found"}, ensure_ascii=False)
+
+        t_account = self.account_dict[acc_name]
+
+        return t_account.get_account_data()
 
 
 if __name__ == "__main__":
@@ -142,7 +160,7 @@ if __name__ == "__main__":
         ],
         "remarks": "仕訳ID004の例"
     }
-    s.journal_entry(test_journal_data) 
+    s.journal_entry(json.dumps(test_journal_data)) 
 
     test_journal_data = {
         "journal_id": "J-004", # 👈 journal_id を追加
@@ -170,5 +188,9 @@ if __name__ == "__main__":
     }
 
     #s.journal_entry(test_journal_data) 
+
+    print(s.get_bs_data())
+    print(s.get_pl_data())
+    print(s.get_account_data("資本金"))
 
     sys.exit(app.exec())
