@@ -202,6 +202,9 @@ class AccountEntryWidget(QWidget):
     # ----------------------------------------------------
     # アイテム追加関数
     # ----------------------------------------------------
+    def get_minimum_height(self):
+        return self._single_row_height + self._table_header_height
+
     def add_item(self, item_name: str, amount: int):
         row = self.table.rowCount()
         self.table.insertRow(row)

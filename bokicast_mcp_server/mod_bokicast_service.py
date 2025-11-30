@@ -15,6 +15,7 @@ from PySide6.QtCore import Qt, QPoint
 from mod_t_account_widget import TAccountWidget
 from mod_journal_entry_widget import JournalEntryWidget
 from mod_balance_sheet_widget import BalanceSheetWidget
+from mod_bs_pl_widget import BsPlWidget
 
 # ロガーの設定
 logger = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ class BokicastService(QWidget):
         self.font = QFont("MS Gothic", 10)
 
         self.setup_account_dict(conf)
-        self.bs = BalanceSheetWidget(self.main_widget, self.font, self.account_dict, self.conf)
+        self.bs = BsPlWidget(self.main_widget, self.font, self.account_dict, self.conf)
 
     def setup_account_dict(self, conf: dict[str, Any]):
         account_to_category: Dict[str, str] = {}
@@ -105,13 +106,18 @@ class BokicastService(QWidget):
         logger.info(f"journal_entry: Processing Journal ID: {journal_id}")
         
         j = JournalEntryWidget(self.main_widget, journal_id, self.font, self.account_dict)
-        
-        main_x = self.main_widget.x()
-        main_y = self.main_widget.y()
-        j.move(main_x + 30, main_y + 30)
-        j.show()
-        
+
         j.add_journal(journal_data)
+
+        #main_x = self.main_widget.x()
+        #main_y = self.main_widget.y()
+
+        screen_geometry = QApplication.primaryScreen().availableGeometry()
+        center_x = screen_geometry.width() // 2
+        center_y = screen_geometry.height() // 2
+
+        j.move(center_x, center_y)
+        j.show()
 
 
 if __name__ == "__main__":
@@ -137,8 +143,33 @@ if __name__ == "__main__":
         ],
         "remarks": "仕訳ID004の例"
     }
+    s.journal_entry(test_journal_data) 
+
+    test_journal_data = {
+        "journal_id": "J-004", # 👈 journal_id を追加
+        "debit": [
+            {"account": "仕入", "amount": 20000},
+        ],
+        "credit": [
+            {"account": "買掛金", "amount": 20000}
+        ],
+        "remarks": "仕訳ID004の例"
+    }
 
     # 修正: 辞書データを渡す
-    s.journal_entry(test_journal_data) 
-    
+    # s.journal_entry(test_journal_data) 
+
+    test_journal_data = {
+        "journal_id": "J-005", # 👈 journal_id を追加
+        "debit": [
+            {"account": "現金", "amount": 30000},
+        ],
+        "credit": [
+            {"account": "売上", "amount": 30000}
+        ],
+        "remarks": "仕訳ID005の例"
+    }
+
+    #s.journal_entry(test_journal_data) 
+
     sys.exit(app.exec())

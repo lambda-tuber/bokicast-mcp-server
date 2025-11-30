@@ -15,7 +15,7 @@ from mod_t_account_widget import TAccountWidget
 # --------------------------------------------------------
 # TAccountWidget
 # --------------------------------------------------------
-class BalanceSheetWidget(QFrame):
+class BsPlWidget(QFrame):
     BASE_HEIGHT = 250
 
     def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], conf: dict[str, Any]):
@@ -28,25 +28,39 @@ class BalanceSheetWidget(QFrame):
         self.assets = AccountEntryWidget(parent, "資産", font, "#92D9C9")
         self.liabilities = AccountEntryWidget(parent, "負債", font, "#F6A6A6")
         self.equity = AccountEntryWidget(parent, "純資産", font, "#A8B2F0")
+        self.expense = AccountEntryWidget(parent, "費用", font, "#F7CE9D")
+        self.revenue = AccountEntryWidget(parent, "収益", font, "#C6E49F")
 
         # 初期位置設定
-        self.assets.move(50, 50)
 
-        self._update_bs_balance()
-        self.asset_base_amount =self.assets.get_total_amount()
-        self._update_bs()
+        self._update_bspl_balance()
+        self.asset_base_amount = self.assets.get_total_amount()
+        self._update_bspl()
+
+        screen_geometry = QApplication.primaryScreen().availableGeometry()
+        widget_size = self.assets.size()
+        center_x = (screen_geometry.width() - widget_size.width()) // 2
+        center_y = (screen_geometry.height() - widget_size.height()) // 2
+        self.assets.move(center_x, center_y)
+        self.expense.move(self.assets.x(), self.assets.y() + self.assets.height()+20)
 
         self.assets.show()
         self.liabilities.show()
         self.equity.show()
+        self.expense.show()
+        self.revenue.show()
 
-        self.update_bs_timer = QTimer()
-        self.update_bs_timer.timeout.connect(lambda: self._update_bs())
-        self.update_bs_timer.start(1000)
+        self.update_bspl_timer = QTimer()
+        self.update_bspl_timer.timeout.connect(lambda: self._update_bspl())
+        self.update_bspl_timer.start(1000)
 
         self.update_bs_pos_timer = QTimer()
         self.update_bs_pos_timer.timeout.connect(lambda: self._update_bs_pos())
         self.update_bs_pos_timer.start(200)
+
+        self.update_pl_pos_timer = QTimer()
+        self.update_pl_pos_timer.timeout.connect(lambda: self._update_pl_pos())
+        self.update_pl_pos_timer.start(200)
 
         # ダブルクリックハンドラ接続
         self.assets.table.cellDoubleClicked.connect(
@@ -58,14 +72,19 @@ class BalanceSheetWidget(QFrame):
         self.equity.table.cellDoubleClicked.connect(
             lambda row, col: self._on_account_clicked(self.equity, row, col)
         )
+        self.expense.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.expense, row, col)
+        )
+        self.revenue.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.revenue, row, col)
+        )
 
+    def _update_bspl(self):
+        self._update_bspl_balance()
+        self._update_bspl_widths()
+        self._update_bspl_height()
 
-    def _update_bs(self):
-        self._update_bs_balance()
-        self._update_bs_widths()
-        self._update_bs_height()
-
-    def _update_bs_balance(self):
+    def _update_bspl_balance(self):
         accounts_conf = self.conf.get('勘定', {})
 
         self._add_balances_to_entry_widget(
@@ -86,6 +105,19 @@ class BalanceSheetWidget(QFrame):
             accounts_list=accounts_conf.get('純資産', [])
         )
 
+        self._add_balances_to_entry_widget(
+            category_name='費用', 
+            entry_widget=self.expense, 
+            accounts_list=accounts_conf.get('費用', [])
+        )
+
+        self._add_balances_to_entry_widget(
+            category_name='収益', 
+            entry_widget=self.revenue, 
+            accounts_list=accounts_conf.get('収益', [])
+        )
+        
+
     def _add_balances_to_entry_widget(self, category_name: str, entry_widget: AccountEntryWidget, accounts_list: List[str]):
         """
         特定のカテゴリに属する勘定科目の残高を取得し、対応する AccountEntryWidget に追加します。
@@ -99,7 +131,7 @@ class BalanceSheetWidget(QFrame):
                 
                 # TAccountWidgetから現在の残高を取得
                 balance = t_account.get_balance()
-                if category_name == '負債' or category_name == '純資産':
+                if category_name == '負債' or category_name == '純資産' or category_name == '収益':
                     balance = abs(balance)
 
                 # 残高が0でない場合にのみ追加（任意だが、通常ゼロ残高は表示しない）
@@ -134,11 +166,33 @@ class BalanceSheetWidget(QFrame):
         
         self.equity.move(equity_x, equity_y)
 
-    def _update_bs_widths(self):
+
+    def _update_pl_pos(self):
+        # 1. Expense の位置（左側）
+        expense_x = self.expense.x()
+        expense_y = self.expense.y()
+        expense_h = self.expense.height()
+
+        # 2. Revenue の高さを取得
+        revenue_h = self.revenue.height()
+
+        # --- 下揃えにする ---
+        # Expense の下端
+        expense_bottom = expense_y + expense_h
+        # Revenue の y は「下端 - 自身の高さ」
+        revenue_y = expense_bottom - revenue_h
+
+        # X座標は右隣
+        revenue_x = expense_x + self.expense.width()
+
+        # 移動
+        self.revenue.move(revenue_x, revenue_y)
+
+    def _update_bspl_widths(self):
         """
         渡されたすべてのウィジェットの中で最大の幅を計算し、全ウィジェットにその幅を適用します。
         """
-        widgets = [self.assets, self.liabilities, self.equity]
+        widgets = [self.assets, self.liabilities, self.equity, self.expense, self.revenue]
 
         max_widths = [w.get_max_column_width() for w in widgets]
         
@@ -147,7 +201,7 @@ class BalanceSheetWidget(QFrame):
         for w in widgets:
             w.set_fixed_column_width(unified_width)
 
-    def _update_bs_height(self):
+    def _update_bspl_height(self):
         """
         資産の基準高 (BASE_HEIGHT) と基準合計額 (asset_base_amount) を基に、
         各勘定科目ウィジェットの高さを動的に設定します。
@@ -156,6 +210,8 @@ class BalanceSheetWidget(QFrame):
         if self.asset_base_amount == 0:
             print("asset_base_amountがゼロです。高さの計算をスキップします。")
             return
+ 
+        minimum_height = self.assets.get_minimum_height()
 
         # 1. 各ウィジェットの合計金額を取得 (get_total_amount() は AccountEntryWidget に存在すると仮定)
         
@@ -165,6 +221,10 @@ class BalanceSheetWidget(QFrame):
         total_liabilities = self.liabilities.get_total_amount()
         # 純資産の合計金額
         total_equity = self.equity.get_total_amount()
+        # 費用の合計金額
+        total_expense = self.expense.get_total_amount()
+        # 収益の合計金額
+        total_revenue = self.revenue.get_total_amount()
 
         # 2. 資産ウィジェットの高さ計算と設定
         # 資産は、基準金額と基準高さを基に計算されます。
@@ -183,6 +243,19 @@ class BalanceSheetWidget(QFrame):
         equity_height = int((total_equity / self.asset_base_amount) * self.BASE_HEIGHT)
         self.equity.setFixedHeight(equity_height)
         print(f"Equity height set to: {equity_height}")
+
+        # 5. 費用ウィジェットの高さ計算と設定
+        # 費用は、基準金額と基準高さを基に計算されます。
+        # 計算式: (現在の合計金額 / 基準合計金額) * 基準高さ
+        expense_height = int((total_expense / self.asset_base_amount) * self.BASE_HEIGHT)
+        self.expense.setFixedHeight(minimum_height + expense_height)
+        print(f"Expense height set to: {minimum_height} + {expense_height}")
+
+        # 6. 収益ウィジェットの高さ計算と設定
+        # 収益の高さも、費用の基準を基に計算されます。
+        revenue_height = int((total_revenue / self.asset_base_amount) * self.BASE_HEIGHT)
+        self.revenue.setFixedHeight(minimum_height + revenue_height)
+        print(f"Revenue height set to: {minimum_height} + {revenue_height}")
 
     # ----------------------------------------------------
     # マウスイベント
@@ -291,7 +364,7 @@ if __name__ == "__main__":
 
 
 
-    bs = BalanceSheetWidget(main_widget, font, account_dict, config)
+    bs = BsPlWidget(main_widget, font, account_dict, config)
     
     main_widget.show()
 

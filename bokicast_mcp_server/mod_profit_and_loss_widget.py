@@ -15,7 +15,7 @@ from mod_t_account_widget import TAccountWidget
 # --------------------------------------------------------
 # TAccountWidget
 # --------------------------------------------------------
-class BalanceSheetWidget(QFrame):
+class ProfitAndLossWidget(QFrame):
     BASE_HEIGHT = 250
 
     def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], conf: dict[str, Any]):
@@ -25,20 +25,18 @@ class BalanceSheetWidget(QFrame):
         self.conf = conf
         self.account_dict = account_dict
 
-        self.assets = AccountEntryWidget(parent, "資産", font, "#92D9C9")
-        self.liabilities = AccountEntryWidget(parent, "負債", font, "#F6A6A6")
-        self.equity = AccountEntryWidget(parent, "純資産", font, "#A8B2F0")
+        self.expense = AccountEntryWidget(parent, "費用", font, "#92D9C9")
+        self.revenue = AccountEntryWidget(parent, "収益", font, "#F6A6A6")
 
         # 初期位置設定
-        self.assets.move(50, 50)
+        self.expense.move(50, 50)
 
         self._update_bs_balance()
-        self.asset_base_amount =self.assets.get_total_amount()
+        self.asset_base_amount =self.expense.get_total_amount()
         self._update_bs()
 
-        self.assets.show()
-        self.liabilities.show()
-        self.equity.show()
+        self.expense.show()
+        self.revenue.show()
 
         self.update_bs_timer = QTimer()
         self.update_bs_timer.timeout.connect(lambda: self._update_bs())
@@ -49,14 +47,11 @@ class BalanceSheetWidget(QFrame):
         self.update_bs_pos_timer.start(200)
 
         # ダブルクリックハンドラ接続
-        self.assets.table.cellDoubleClicked.connect(
-            lambda row, col: self._on_account_clicked(self.assets, row, col)
+        self.expense.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.expense, row, col)
         )
-        self.liabilities.table.cellDoubleClicked.connect(
-            lambda row, col: self._on_account_clicked(self.liabilities, row, col)
-        )
-        self.equity.table.cellDoubleClicked.connect(
-            lambda row, col: self._on_account_clicked(self.equity, row, col)
+        self.revenue.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_account_clicked(self.revenue, row, col)
         )
 
 
@@ -69,22 +64,17 @@ class BalanceSheetWidget(QFrame):
         accounts_conf = self.conf.get('勘定', {})
 
         self._add_balances_to_entry_widget(
-            category_name='資産', 
-            entry_widget=self.assets, 
-            accounts_list=accounts_conf.get('資産', [])
+            category_name='費用', 
+            entry_widget=self.expense, 
+            accounts_list=accounts_conf.get('費用', [])
         )
 
         self._add_balances_to_entry_widget(
-            category_name='負債', 
-            entry_widget=self.liabilities, 
-            accounts_list=accounts_conf.get('負債', [])
+            category_name='収益', 
+            entry_widget=self.revenue, 
+            accounts_list=accounts_conf.get('収益', [])
         )
         
-        self._add_balances_to_entry_widget(
-            category_name='純資産', 
-            entry_widget=self.equity, 
-            accounts_list=accounts_conf.get('純資産', [])
-        )
 
     def _add_balances_to_entry_widget(self, category_name: str, entry_widget: AccountEntryWidget, accounts_list: List[str]):
         """
@@ -99,7 +89,7 @@ class BalanceSheetWidget(QFrame):
                 
                 # TAccountWidgetから現在の残高を取得
                 balance = t_account.get_balance()
-                if category_name == '負債' or category_name == '純資産':
+                if category_name == '収益':
                     balance = abs(balance)
 
                 # 残高が0でない場合にのみ追加（任意だが、通常ゼロ残高は表示しない）
@@ -111,34 +101,24 @@ class BalanceSheetWidget(QFrame):
                 print(f"TAccountWidget ({account_name}) が account_dict に見つかりません。")
 
     def _update_bs_pos(self):
-        # 1. Assetsの位置は固定
-        assets_x = self.assets.x()
-        assets_y = self.assets.y()
+        # 1. Expenseの位置は固定
+        expense_x = self.expense.x()
+        expense_y = self.expense.y()
         
-        # 2. Liabilitiesの位置を決定 (Assetsに右隣で隙間なく追従)
+        # 2. Revenueの位置を決定 (Expenseに右隣で隙間なく追従)
         
-        # X座標: Assetsの右端に隣接
-        liabilities_x = assets_x + self.assets.width() 
-        # Y座標: Assetsと同じ高さ (上揃え)
-        liabilities_y = assets_y
+        # X座標: Expenseの右端に隣接
+        revenue_x = expense_x + self.expense.width() 
+        # Y座標: Expenseと同じ高さ (上揃え)
+        revenue_y = expense_y
         
-        self.liabilities.move(liabilities_x, liabilities_y)
+        self.revenue.move(revenue_x, revenue_y)
         
-        # 3. Equityの位置を決定 (Liabilitiesの真下に隙間なく追従)
-        
-        # X座標: Liabilitiesと同じX座標
-        equity_x = liabilities_x
-        # 🌟 変更点: PADDING_Y の参照を削除 🌟
-        # Y座標: Liabilitiesの下端に隣接
-        equity_y = liabilities_y + self.liabilities.height()
-        
-        self.equity.move(equity_x, equity_y)
-
     def _update_bs_widths(self):
         """
         渡されたすべてのウィジェットの中で最大の幅を計算し、全ウィジェットにその幅を適用します。
         """
-        widgets = [self.assets, self.liabilities, self.equity]
+        widgets = [self.expense, self.revenue]
 
         max_widths = [w.get_max_column_width() for w in widgets]
         
@@ -147,9 +127,9 @@ class BalanceSheetWidget(QFrame):
         for w in widgets:
             w.set_fixed_column_width(unified_width)
 
-    def _update_bs_height(self):
+    def _update_bspl_height(self):
         """
-        資産の基準高 (BASE_HEIGHT) と基準合計額 (asset_base_amount) を基に、
+        費用の基準高 (BASE_HEIGHT) と基準合計額 (asset_base_amount) を基に、
         各勘定科目ウィジェットの高さを動的に設定します。
         """
         
@@ -159,37 +139,30 @@ class BalanceSheetWidget(QFrame):
 
         # 1. 各ウィジェットの合計金額を取得 (get_total_amount() は AccountEntryWidget に存在すると仮定)
         
-        # 資産の合計金額
-        total_assets = self.assets.get_total_amount()
-        # 負債の合計金額
-        total_liabilities = self.liabilities.get_total_amount()
-        # 純資産の合計金額
-        total_equity = self.equity.get_total_amount()
+        # 費用の合計金額
+        total_expense = self.expense.get_total_amount()
+        # 収益の合計金額
+        total_revenue = self.revenue.get_total_amount()
 
-        # 2. 資産ウィジェットの高さ計算と設定
-        # 資産は、基準金額と基準高さを基に計算されます。
+        # 2. 費用ウィジェットの高さ計算と設定
+        # 費用は、基準金額と基準高さを基に計算されます。
         # 計算式: (現在の合計金額 / 基準合計金額) * 基準高さ
-        asset_height = int((total_assets / self.asset_base_amount) * self.BASE_HEIGHT)
-        self.assets.setFixedHeight(asset_height)
-        print(f"Assets height set to: {asset_height}")
+        asset_height = int((total_expense / self.asset_base_amount) * self.BASE_HEIGHT)
+        self.expense.setFixedHeight(asset_height)
+        print(f"Expense height set to: {asset_height}")
 
-        # 3. 負債ウィジェットの高さ計算と設定
-        # 負債の高さも、資産の基準を基に計算されます。
-        liabilities_height = int((total_liabilities / self.asset_base_amount) * self.BASE_HEIGHT)
-        self.liabilities.setFixedHeight(liabilities_height)
-        print(f"Liabilities height set to: {liabilities_height}")
-
-        # 4. 純資産ウィジェットの高さ計算と設定
-        equity_height = int((total_equity / self.asset_base_amount) * self.BASE_HEIGHT)
-        self.equity.setFixedHeight(equity_height)
-        print(f"Equity height set to: {equity_height}")
+        # 3. 収益ウィジェットの高さ計算と設定
+        # 収益の高さも、費用の基準を基に計算されます。
+        revenue_height = int((total_revenue / self.asset_base_amount) * self.BASE_HEIGHT)
+        self.revenue.setFixedHeight(revenue_height)
+        print(f"Revenue height set to: {revenue_height}")
 
     # ----------------------------------------------------
     # マウスイベント
     # ----------------------------------------------------
     def _on_account_clicked(self, section_widget, row, col):
         """
-        どのセクション（資産/負債/純資産）で
+        どのセクション（費用/収益）で
         どの行がダブルクリックされたかを受け取る
         """
         # 勘定科目名は常に column 0
@@ -282,16 +255,16 @@ if __name__ == "__main__":
 
         category = account_to_category.get(account_name)
 
-        if category == '資産' or category == '費用':
+        if category == '費用' or category == '費用':
             t_account.add_debit("期首残高", initial_balance)
-        elif category == '負債' or category == '純資産' or category == '収益':
+        elif category == '収益' or category == '収益':
             t_account.add_credit("期首残高", initial_balance)
         else:
             print(f"  -> {account_name}: 勘定カテゴリ ({category}) が不明。期首残高は未登録。")
 
 
 
-    bs = BalanceSheetWidget(main_widget, font, account_dict, config)
+    bs = ProfitAndLossWidget(main_widget, font, account_dict, config)
     
     main_widget.show()
 
