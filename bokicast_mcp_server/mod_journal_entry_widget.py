@@ -49,7 +49,7 @@ class JournalEntryWidget(QFrame):
         self.setObjectName("JournalEntryFrame")
 
         # 💡 全体の高さを200pxに固定
-        self.setFixedHeight(170)
+        self.setFixedHeight(200)
 
         # --- メインレイアウト ---
         main_layout = QVBoxLayout(self)
@@ -111,7 +111,7 @@ class JournalEntryWidget(QFrame):
         except AttributeError:
             height = self.fm.height() + 10 
             
-        self.total_debit_label = QLabel("借方計: 0")
+        self.total_debit_label = QLabel("計: 0")
         self.total_debit_label.setFont(self.font)
         self.total_debit_label.setStyleSheet("color: blue; font-weight: bold;")
         self.total_debit_label.setFixedHeight(height) 
@@ -121,7 +121,7 @@ class JournalEntryWidget(QFrame):
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setFixedHeight(height) 
 
-        self.total_credit_label = QLabel("貸方計: 0")
+        self.total_credit_label = QLabel("計: 0")
         self.total_credit_label.setFont(self.font)
         self.total_credit_label.setStyleSheet("color: red; font-weight: bold;")
         self.total_credit_label.setFixedHeight(height) 
@@ -272,8 +272,8 @@ class JournalEntryWidget(QFrame):
         debit_total = self.debit_widget.get_total_amount()
         credit_total = self.credit_widget.get_total_amount()
         
-        self.total_debit_label.setText(f"借方計: {debit_total:,}")
-        self.total_credit_label.setText(f"貸方計: {credit_total:,}")
+        self.total_debit_label.setText(f"計: {debit_total:,}")
+        self.total_credit_label.setText(f"計: {credit_total:,}")
         
         if debit_total != credit_total:
             self.balance_status = "⚠️ 不一致"
@@ -416,6 +416,7 @@ class JournalEntryWidget(QFrame):
             logger.debug(f"Journal {self.journal_id}: 関連する T勘定 をすべて表示しました")
 
         event.accept()
+
 
 # --------------------------------------------------------
 # 動作テスト
