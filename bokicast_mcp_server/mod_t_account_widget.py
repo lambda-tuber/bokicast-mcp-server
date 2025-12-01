@@ -36,11 +36,11 @@ class TAccountWidget(QFrame):
         self.setFrameShape(QFrame.Box)
         self.setLineWidth(1)
         self.setMidLineWidth(0)
-        self.setContentsMargins(1, 1, 1, 1)
+        self.setContentsMargins(4, 4, 4, 4)
 
         # 💡 TAccountWidgetをフローティングウィンドウ化するための設定
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
         self.setCursor(Qt.OpenHandCursor)
         self.setObjectName("TAccountFrame")
 
@@ -84,12 +84,10 @@ class TAccountWidget(QFrame):
         self.scroll_layout.setAlignment(Qt.AlignTop)
 
         # 借方（Debit）ウィジェット
-        self.debit_widget = AccountEntryWidget(self, "借方", self.font, "#E0FFFF", False) 
-        self.debit_widget.setWindowFlags(Qt.Widget) # フローティング無効化
+        self.debit_widget = AccountEntryWidget(self.scroll_content, "借方", self.font, "#E0FFFF", False) 
         
         # 貸方（Credit）ウィジェット
-        self.credit_widget = AccountEntryWidget(self, "貸方", self.font, "#FFE0E0", False) 
-        self.credit_widget.setWindowFlags(Qt.Widget) # フローティング無効化
+        self.credit_widget = AccountEntryWidget(self.scroll_content, "貸方", self.font, "#FFE0E0", False) 
 
         # スタイル調整（ボーダーなど）
         # self.debit_widget.header_label.setStyleSheet(f"background-color: #E0FFFF; border-left: 1px solid black; border-right: 1px solid black;")
@@ -118,6 +116,8 @@ class TAccountWidget(QFrame):
         except AttributeError:
             height = self.fm.height() + 10 
             
+        self.account_name_label.setFixedHeight(height) 
+        
         self.balance_label.setFixedHeight(height) 
         self.balance_label.setStyleSheet("border: 0px solid black; background-color: #A0E0A0; padding-right: 5px;")
         main_layout.addWidget(self.balance_label)
@@ -127,7 +127,7 @@ class TAccountWidget(QFrame):
         # ----------------------------------------------------
         self.set_column_width_sync()
         self.update_balance_label()
-        self.setStyleSheet("#TAccountFrame { border: 1px solid #333366; background-color: white; border-radius:8px; }")
+        self.setStyleSheet("#TAccountFrame { border: 0px solid #333366; background-color: #A0E0A0; border-radius:0px; }")
 
     # ----------------------------------------------------
     # Public: 項目追加
@@ -165,12 +165,12 @@ class TAccountWidget(QFrame):
         scroll_bar_width = self.scroll_area.verticalScrollBar().sizeHint().width()
         total_content_width = self.debit_widget.width() + self.credit_widget.width() + scroll_bar_width
         
-        # ヘッダーとフッターもこの幅に合わせる
         self.account_name_label.setFixedWidth(total_content_width)
+        self.scroll_area.setFixedWidth(total_content_width)
         self.balance_label.setFixedWidth(total_content_width)
         
         # TAccountWidget全体の幅を固定
-        self.setFixedWidth(total_content_width)
+        self.setFixedWidth(total_content_width + 8)
         
         # 💡 高さは固定(400)なので adjustSize() は呼ばない
 
@@ -370,6 +370,26 @@ class TAccountWidget(QFrame):
             return
 
         super().keyPressEvent(event)
+
+    def enterEvent(self, event):
+        self.setStyleSheet("""
+            #TAccountFrame {
+                background-color: #FFFACD;
+                border: 0px solid #333366;
+                border-radius: 0px;
+            }
+        """)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.setStyleSheet("""
+            #TAccountFrame {
+                background-color: #A0E0A0;
+                border: 0px solid #333366;
+                border-radius: 0px;
+            }
+        """)
+        super().leaveEvent(event)
 
 # --------------------------------------------------------
 # 動作テスト

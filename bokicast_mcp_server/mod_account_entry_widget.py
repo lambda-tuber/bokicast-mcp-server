@@ -22,7 +22,6 @@ class AccountEntryWidget(QWidget):
         super().__init__(parent)
         
         self.enable_drag = enable_drag # フラグを保持
-
         if self.enable_drag:
             # 💡 ドラッグ有効時: フローティングウィンドウとして設定
             self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
@@ -31,9 +30,13 @@ class AccountEntryWidget(QWidget):
         else:
             # 💡 ドラッグ無効時: 通常の埋め込みウィジェットとして設定
             self.setWindowFlags(Qt.Widget)
+            self.setAttribute(Qt.WA_TranslucentBackground, False)
+            self.setAttribute(Qt.WA_StyledBackground, True)
             self.setCursor(Qt.ArrowCursor)
             
-        self.setContentsMargins(0, 0, 0, 0)
+        self.header_color = hcolor
+        self.setContentsMargins(4, 4, 4, 4)
+        self.setObjectName("AccountFrame")
 
         # ---- フォント設定（パラメータ化） ----
         self.font = font
@@ -48,7 +51,7 @@ class AccountEntryWidget(QWidget):
         self.header_label = QLabel(title)
         self.header_label.setFont(self.font)
         self.header_label.setAlignment(Qt.AlignCenter)
-        self.header_label.setStyleSheet(f"background-color: {hcolor}; border: 0px solid black;")
+        self.header_label.setStyleSheet(f"background-color: {self.header_color}; border: 0px solid black;")
         self.layout.addWidget(self.header_label, alignment=Qt.AlignTop)
 
         # ---- テーブル（2列：勘定科目 / 金額） ----
@@ -73,7 +76,9 @@ class AccountEntryWidget(QWidget):
         
         # Widgetのリフレッシュ
         self._fix_column_widths_based_on_contents()
-        self._fix_height_based_on_contents() 
+        self._fix_height_based_on_contents()
+
+        self.setStyleSheet(f"#AccountFrame {{ border: 0px solid #333366; background-color: {self.header_color}; border-radius:0px; }}")
         self.adjustSize() 
 
     # ----------------------------------------------------
@@ -130,7 +135,24 @@ class AccountEntryWidget(QWidget):
             event.accept()
         else:
             super().mouseReleaseEvent(event)
-            
+
+    def enterEvent(self, event):
+        if not self.enable_drag:
+            super().enterEvent(event)
+            return
+
+        self.setStyleSheet(f"#AccountFrame {{background-color: #FFFACD; border: 0px solid #333366; border-radius: 0px;}}")
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if not self.enable_drag:
+            super().leaveEvent(event)
+            return
+
+        self.setStyleSheet(f"#AccountFrame {{background-color: {self.header_color}; border: 0px solid #333366; border-radius: 0px;}}")
+        super().leaveEvent(event)
+
+
     # ----------------------------------------------------
     # 💡 【新規】スナップ判定ロジック
     # ----------------------------------------------------
@@ -399,7 +421,7 @@ class AccountEntryWidget(QWidget):
         
         # 💡 AccountEntryWidget全体の幅を固定する (ユーザー要求を維持)
         # ※この行があると、幅のサイズ変更はできなくなります
-        self.setFixedWidth(table_width_needed) 
+        self.setFixedWidth(table_width_needed + 8) 
         
         # 3. 親ウィジェットに最小サイズへの調整を強制
         self.adjustSize()

@@ -39,11 +39,11 @@ class JournalEntryWidget(QFrame):
         self.setFrameShape(QFrame.StyledPanel)
         self.setLineWidth(1)
         self.setMidLineWidth(0)
-        self.setContentsMargins(1, 1, 1, 1)
+        self.setContentsMargins(4, 4, 4, 6)
 
         # フローティングウィンドウ設定
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
         self.setCursor(Qt.OpenHandCursor)
         
         self.setObjectName("JournalEntryFrame")
@@ -51,10 +51,21 @@ class JournalEntryWidget(QFrame):
         # 💡 全体の高さを200pxに固定
         self.setFixedHeight(200)
 
+        # self.bg = QWidget(self)
+        # self.bg.setObjectName("bgPanel")
+        # self.bg = QFrame(self)
+        # self.bg.setObjectName("bgPanel")
+        # self.bg.setContentsMargins(10, 10, 10, 10)
+        # self.bg.setStyleSheet("""
+        #     #bgPanel {
+        #         background-color: white;
+        #     }
+        # """)
+
         # --- メインレイアウト ---
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(1, 1, 1, 1)
-        main_layout.setSpacing(0)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(1, 1, 1, 1)
+        self.main_layout.setSpacing(0)
 
         # ----------------------------------------------------
         # 1. ヘッダー（仕訳ID）
@@ -65,8 +76,8 @@ class JournalEntryWidget(QFrame):
         # 高さを少し詰める
         self.header_label.setFixedHeight(self.fm.height() + 10)
         self.header_label.setStyleSheet("font-weight: 0px solid black; background-color: #CCCCFF;")
-        main_layout.addWidget(self.header_label, alignment=Qt.AlignHCenter)
-        #main_layout.addWidget(self.header_label)
+        self.main_layout.addWidget(self.header_label, alignment=Qt.AlignHCenter)
+        #self.main_layout.addWidget(self.header_label)
 
         # ----------------------------------------------------
         # 2. スクロールエリア（借方・貸方コンテンツ）
@@ -85,8 +96,8 @@ class JournalEntryWidget(QFrame):
         self.scroll_layout.setAlignment(Qt.AlignTop)
 
         # 借方・貸方ウィジェット
-        self.debit_widget = AccountEntryWidget(self, "借方", self.font, "#E0FFFF", enable_drag=False) 
-        self.credit_widget = AccountEntryWidget(self, "貸方", self.font, "#FFE0E0", enable_drag=False) 
+        self.debit_widget = AccountEntryWidget(self.scroll_content, "借方", self.font, "#E0FFFF", enable_drag=False) 
+        self.credit_widget = AccountEntryWidget(self.scroll_content, "貸方", self.font, "#FFE0E0", enable_drag=False) 
 
         # 配置
         self.scroll_layout.addWidget(self.debit_widget, 0, Qt.AlignTop)
@@ -94,7 +105,7 @@ class JournalEntryWidget(QFrame):
 
         self.scroll_area.setWidget(self.scroll_content)
         # stretch=1 を設定して、余った縦幅をこのエリアに割り当てる
-        main_layout.addWidget(self.scroll_area)
+        self.main_layout.addWidget(self.scroll_area, alignment=Qt.AlignHCenter)
 
         # ----------------------------------------------------
         # 3. 合計表示・エラー確認エリア
@@ -110,7 +121,9 @@ class JournalEntryWidget(QFrame):
             height = self.debit_widget._table_header_height
         except AttributeError:
             height = self.fm.height() + 10 
-            
+        
+        self.header_label.setFixedHeight(height)
+
         self.total_debit_label = QLabel("計: 0")
         self.total_debit_label.setFont(self.font)
         self.total_debit_label.setStyleSheet("color: blue; font-weight: bold;")
@@ -132,8 +145,8 @@ class JournalEntryWidget(QFrame):
         totals_layout.addStretch()
         totals_layout.addWidget(self.total_credit_label)
         
-#        main_layout.addWidget(totals_container, alignment=Qt.AlignHCenter)
-        main_layout.addWidget(self.totals_container)
+#        self.main_layout.addWidget(totals_container, alignment=Qt.AlignHCenter)
+        self.main_layout.addWidget(self.totals_container, alignment=Qt.AlignHCenter)
 
         # ----------------------------------------------------
         # 4. 備考欄 (Footer) - 3行固定、ラベルなし
@@ -141,31 +154,24 @@ class JournalEntryWidget(QFrame):
         self.remarks_input = QTextEdit()
         self.remarks_input.setFont(self.font)
         self.remarks_input.setPlaceholderText("備考を入力...")
-        
-        # 💡 縦スクロールバーを常時表示
         self.remarks_input.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        
-        # 💡 高さ計算: (フォントの高さ * 3行) + 上下パディング
         line_height = self.fm.lineSpacing()
-        # テキストエリアのフレーム幅やマージンを考慮して少し余裕を持たせる (+10)
-        remarks_height = (line_height * 2) + 10
-        self.remarks_input.setFixedHeight(remarks_height)
-        
+        remarks_height = (line_height * 2)
+        self.remarks_input.setFixedHeight(remarks_height + 10)
         self.remarks_input.setStyleSheet("border: 0px solid #CCC; border-top: none; background-color: white;")
-        
-        main_layout.addWidget(self.remarks_input, alignment=Qt.AlignHCenter)
+        self.main_layout.addWidget(self.remarks_input, alignment=Qt.AlignHCenter)
 
         # ----------------------------------------------------
         # 初期調整
         # ----------------------------------------------------
         self.set_column_width_sync()
         self.update_totals()
-        self.setStyleSheet("#JournalEntryFrame { border: 1px solid #333366; background-color: white; border-radius: 8px; }")
+        # self.setStyleSheet("#JournalEntryFrame { border: 1px solid #333366; background-color: white; border-radius: 8px; }")
+        self.setStyleSheet("#JournalEntryFrame { border: 0px solid #333366; background-color: #CCCCFF; border-radius: 0px; }")
 
     # ----------------------------------------------------
     # Public: データ操作
     # ----------------------------------------------------
-
     def add_journal(self, journal_data: dict):
         """
         JSONデータ形式で借方・貸方・備考を一括追加
@@ -261,9 +267,10 @@ class JournalEntryWidget(QFrame):
         total_content_width = self.debit_widget.width() + self.credit_widget.width() + scroll_bar_width
         
         self.header_label.setFixedWidth(total_content_width)
+        self.scroll_area.setFixedWidth(total_content_width)
         self.totals_container.setFixedWidth(total_content_width)
         self.remarks_input.setFixedWidth(total_content_width)
-        self.setFixedWidth(total_content_width) 
+        self.setFixedWidth(total_content_width + 8) 
 
     # ----------------------------------------------------
     # 内部処理: 合計更新・エラーチェック
@@ -417,6 +424,25 @@ class JournalEntryWidget(QFrame):
 
         event.accept()
 
+    def enterEvent(self, event):
+        self.setStyleSheet("""
+            #JournalEntryFrame {
+                background-color: #FFFACD;
+                border: 0px solid #333366;
+                border-radius: 0px;
+            }
+        """)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.setStyleSheet("""
+            #JournalEntryFrame {
+                background-color: #CCCCFF;
+                border: 0px solid #333366;
+                border-radius: 0px;
+            }
+        """)
+        super().leaveEvent(event)
 
 # --------------------------------------------------------
 # 動作テスト
