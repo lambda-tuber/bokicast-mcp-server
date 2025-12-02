@@ -139,11 +139,13 @@ class BsPlWidget(QFrame):
                 if category_name == '負債' or category_name == '純資産' or category_name == '収益':
                     balance = abs(balance)
 
+                entry_widget.update_item(account_name, balance)
+                
                 # 残高が0でない場合にのみ追加（任意だが、通常ゼロ残高は表示しない）
-                if balance != 0:
-                    entry_widget.update_item(account_name, balance)
-                else:
-                    logger.debug(f"{account_name} の残高は0のためスキップ。")
+                # if balance != 0:
+                #     entry_widget.update_item(account_name, balance)
+                # else:
+                #     logger.debug(f"{account_name} の残高は0のためスキップ。")
             else:
                 logger.debug(f"TAccountWidget ({account_name}) が account_dict に見つかりません。")
 

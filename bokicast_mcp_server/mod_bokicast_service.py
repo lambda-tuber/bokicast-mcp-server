@@ -69,6 +69,7 @@ class BokicastService(QWidget):
             t_account = TAccountWidget(self.main_widget, account_name, self.font)
             self.account_dict[account_name] = t_account
 
+            # 費用、収益勘定は除く。
             if initial_balance == 0:
                 logger.debug(f"  -> {account_name}: 残高が0のためスキップ")
                 continue
@@ -149,47 +150,126 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     s = BokicastService.instance(config)
 
-    # 渡すべき仕訳データの例を定義
-    test_journal_data = {
-        "journal_id": "J-004", # 👈 journal_id を追加
-        "debit": [
-            {"account": "仕入", "amount": 1000},
-            {"account": "荷役費", "amount": 500},
-            {"account": "雑費", "amount": 500}
-        ],
-        "credit": [
-            {"account": "買掛金", "amount": 2000}
-        ],
-        "remarks": "仕訳ID004の例"
-    }
-    s.journal_entry(json.dumps(test_journal_data)) 
+    # # 渡すべき仕訳データの例を定義
+    # test_journal_data = {
+    #     "journal_id": "J-004", # 👈 journal_id を追加
+    #     "debit": [
+    #         {"account": "仕入", "amount": 1000},
+    #         {"account": "荷役費", "amount": 500},
+    #         {"account": "雑費", "amount": 500}
+    #     ],
+    #     "credit": [
+    #         {"account": "買掛金", "amount": 2000}
+    #     ],
+    #     "remarks": "仕訳ID004の例"
+    # }
+    # s.journal_entry(json.dumps(test_journal_data)) 
 
-    test_journal_data = {
-        "journal_id": "J-004", # 👈 journal_id を追加
-        "debit": [
-            {"account": "仕入", "amount": 20000},
-        ],
-        "credit": [
-            {"account": "買掛金", "amount": 20000}
-        ],
-        "remarks": "仕訳ID004の例"
-    }
 
-    # 修正: 辞書データを渡す
+    # test_journal_data = {
+    #     "journal_id": "J-004", # 👈 journal_id を追加
+    #     "debit": [
+    #         {"account": "仕入", "amount": 20000},
+    #     ],
+    #     "credit": [
+    #         {"account": "買掛金", "amount": 20000}
+    #     ],
+    #     "remarks": "仕訳ID004の例"
+    # }
+
     # s.journal_entry(test_journal_data) 
+
+    # test_journal_data = {
+    #     "journal_id": "J-005", # 👈 journal_id を追加
+    #     "debit": [
+    #         {"account": "現金", "amount": 30000},
+    #     ],
+    #     "credit": [
+    #         {"account": "売上", "amount": 30000}
+    #     ],
+    #     "remarks": "仕訳ID005の例"
+    # }
+
+    # s.journal_entry(test_journal_data) 
+
+
 
     test_journal_data = {
         "journal_id": "J-005", # 👈 journal_id を追加
         "debit": [
-            {"account": "現金", "amount": 30000},
+            {"account": "仕入", "amount": 20000},
         ],
         "credit": [
-            {"account": "売上", "amount": 30000}
+            {"account": "買掛金", "amount": 20000},
         ],
         "remarks": "仕訳ID005の例"
     }
+    s = BokicastService.instance(config)
+    s.journal_entry(json.dumps(test_journal_data)) 
 
-    #s.journal_entry(test_journal_data) 
+
+    test_journal_data = {
+        "journal_id": "J-006", # 👈 journal_id を追加
+        "debit": [
+            {"account": "現金", "amount": 30000},
+        ],
+        "credit": [
+            {"account": "売上", "amount": 30000},
+        ],
+        "remarks": "仕訳ID005の例"
+    }
+    s = BokicastService.instance(config)
+    s.journal_entry(json.dumps(test_journal_data)) 
+
+    test_journal_data = {
+        "journal_id": "J-006", # 👈 journal_id を追加
+        "debit": [
+            {"account": "現金", "amount": 30000},
+        ],
+        "credit": [
+            {"account": "資本金", "amount": 30000},
+        ],
+        "remarks": "仕訳ID005の例"
+    }
+    s = BokicastService.instance(config)
+    s.journal_entry(json.dumps(test_journal_data)) 
+
+    test_journal_data = {
+        "journal_id": "J-007", # 👈 journal_id を追加
+        "debit": [
+            {"account": "売上", "amount": 30000},
+        ],
+        "credit": [
+            {"account": "損益", "amount": 30000},
+        ],
+        "remarks": "仕訳ID005の例"
+    }
+    s = BokicastService.instance(config)
+    s.journal_entry(json.dumps(test_journal_data)) 
+
+    # test_journal_data = {
+    #     "journal_id": "J-007", # 👈 journal_id を追加
+    #     "debit": [
+    #         {"account": "損益", "amount": 20000},
+    #     ],
+    #     "credit": [
+    #         {"account": "仕入", "amount": 20000},
+    #     ],
+    #     "remarks": "仕訳ID005の例"
+    # }
+    # s.journal_entry(json.dumps(test_journal_data)) 
+
+    # test_journal_data = {
+    #     "journal_id": "J-008", # 👈 journal_id を追加
+    #     "debit": [
+    #         {"account": "損益", "amount": 10000},
+    #     ],
+    #     "credit": [
+    #         {"account": "利益剰余金", "amount": 10000},
+    #     ],
+    #     "remarks": "仕訳ID005の例"
+    # }
+    # s.journal_entry(json.dumps(test_journal_data)) 
 
     print(s.get_bs_data())
     print(s.get_pl_data())

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel,
-    QTableWidget, QTableWidgetItem, QHeaderView
+    QTableWidget, QTableWidgetItem, QHeaderView, QAbstractScrollArea
 )
 from PySide6.QtGui import QFont, QFontMetrics, QMouseEvent
 from PySide6.QtCore import Qt, QPoint
@@ -65,6 +65,7 @@ class AccountEntryWidget(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.layout.addWidget(self.table, alignment=Qt.AlignTop)
         self.layout.addStretch()
+        self.table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
 
         # 💡 テーブル単一行の高さを計算
         # QTableWidgetの行高さを取得するため、一時的に行を追加して測定する
@@ -449,7 +450,7 @@ class AccountEntryWidget(QWidget):
                 
         self.table.setMinimumHeight(0)
         self.table.setMaximumHeight(table_needed_height) 
-        self.setFixedHeight(self._table_header_height + table_needed_height) 
+        self.setFixedHeight(self._table_header_height + table_needed_height + 10) 
 
         self.adjustSize()
 
