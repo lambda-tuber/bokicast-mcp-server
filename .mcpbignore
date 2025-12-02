@@ -23,3 +23,4 @@ manifest_uvx.json
 manifest.pip.json
 pty-mcp-server/*
 download/*
+docs/*
