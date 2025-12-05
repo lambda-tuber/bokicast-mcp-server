@@ -231,6 +231,19 @@ class AccountEntryWidget(QWidget):
     def get_minimum_height(self):
         return self._single_row_height + self._table_header_height
 
+    def get_needed_height(self):
+        """現在の行数に基づいてテーブルとウィジェットの必要な高さを返す。"""
+        
+        margin = 8
+        h = self.header_label.height() + margin
+
+        rows = self.table.rowCount()
+        for i in range(rows):
+            h += self._single_row_height
+                
+        return h
+
+
     def add_item(self, item_name: str, amount: int):
         row = self.table.rowCount()
         self.table.insertRow(row)

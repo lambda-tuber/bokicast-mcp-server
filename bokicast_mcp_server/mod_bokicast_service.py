@@ -50,9 +50,11 @@ class BokicastService(QWidget):
         )
         self.main_widget.setGeometry(0, 0, 500, 10)
         self.main_widget.move(0, 100)
-        #self.main_widget.show()
+        font_type = self.conf.get("フォント", {}).get("種別", "MS Gothic")
+        font_size = self.conf.get("フォント", {}).get("サイズ", 14)
+        self.font = QFont(font_type, font_size)
         #self.font = QFont("MS Gothic", 14)
-        self.font = QFont("Meiryo UI", 14)
+        #self.font = QFont("Meiryo UI", 14)
         #self.font = QFont("Yu Gothic UI", 14)
 
         self.setup_account_dict(conf)

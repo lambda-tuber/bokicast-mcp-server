@@ -251,18 +251,20 @@ class BsPlWidget(QFrame):
         self.equity.setFixedHeight(equity_height)
         logger.debug(f"Equity height set to: {equity_height}")
 
+        geta = max(self.expense.get_needed_height(), self.revenue.get_needed_height());
+
         # 5. 費用ウィジェットの高さ計算と設定
         # 費用は、基準金額と基準高さを基に計算されます。
         # 計算式: (現在の合計金額 / 基準合計金額) * 基準高さ
         expense_height = int((total_expense / self.asset_base_amount) * self.BASE_HEIGHT)
-        self.expense.setFixedHeight(minimum_height + expense_height)
-        logger.debug(f"Expense height set to: {minimum_height} + {expense_height}")
+        self.expense.setFixedHeight(expense_height + geta)
+        logger.debug(f"Expense height set to: {expense_height} + {geta}")
 
         # 6. 収益ウィジェットの高さ計算と設定
         # 収益の高さも、費用の基準を基に計算されます。
         revenue_height = int((total_revenue / self.asset_base_amount) * self.BASE_HEIGHT)
-        self.revenue.setFixedHeight(minimum_height + revenue_height)
-        logger.debug(f"Revenue height set to: {minimum_height} + {revenue_height}")
+        self.revenue.setFixedHeight(revenue_height + geta)
+        logger.debug(f"Revenue height set to: {revenue_height} + {geta}")
 
     # ----------------------------------------------------
     # マウスイベント
