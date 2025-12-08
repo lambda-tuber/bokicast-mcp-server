@@ -10,6 +10,7 @@ from typing import Any, List, Dict
 
 # 💡 AccountEntryWidget を別のファイルからインポートします
 from bokicast_mcp_server.mod_account_entry_widget import AccountEntryWidget
+#from bokicast_mcp_server.mod_journal_entry_widget import JournalEntryWidget
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,10 +28,11 @@ class TAccountWidget(QFrame):
     _drag_start_position: QPoint | None = None # 💡 TAccountWidget用ドラッグ開始位置
     SNAP_DISTANCE = 15 
     
-    def __init__(self, parent, account_name: str, font: QFont):
+    def __init__(self, parent, account_name: str, font: QFont, journal_dict):
         super().__init__(parent)
         self.font = font
         self.fm = QFontMetrics(self.font)
+        self.journal_dict = journal_dict
 
         # QFrameのプロパティで枠の形状を設定（スタイルシートの補助として）
         self.setFrameShape(QFrame.Box)
@@ -89,12 +91,13 @@ class TAccountWidget(QFrame):
         # 貸方（Credit）ウィジェット
         self.credit_widget = AccountEntryWidget(self.scroll_content, "貸方", self.font, "#FFE0E0", False) 
 
-        # スタイル調整（ボーダーなど）
-        # self.debit_widget.header_label.setStyleSheet(f"background-color: #E0FFFF; border-left: 1px solid black; border-right: 1px solid black;")
-        # self.credit_widget.header_label.setStyleSheet(f"background-color: #FFE0E0; border-right: 1px solid black;")
-        # self.debit_widget.table.setStyleSheet("border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;")
-        # self.credit_widget.table.setStyleSheet("border-right: 1px solid black; border-bottom: 1px solid black;")
-        
+        self.debit_widget.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_entry_double_clicked(self.debit_widget, row, col)
+        )
+        self.credit_widget.table.cellDoubleClicked.connect(
+            lambda row, col: self._on_entry_double_clicked(self.credit_widget, row, col)
+        )
+
         # レイアウトに追加
         # 💡 【修正ポイント】第2引数(stretch)を0にし、第3引数で Qt.AlignTop を指定して上寄せを強制
         self.scroll_layout.addWidget(self.debit_widget, 0, Qt.AlignTop)
@@ -390,6 +393,80 @@ class TAccountWidget(QFrame):
             }
         """)
         super().leaveEvent(event)
+
+
+    # ======================================================================
+    #   🔥 ダブルクリック処理（仕訳検索 + T版表示/非表示 + 位置移動）
+    # ======================================================================
+    def _on_entry_double_clicked(self, entry_widget, row: int, col: int):
+        """
+        ダブルクリックで処理する内容:
+
+        1.セルの文字を取得 → "J001-売上" 形式なら仕訳ID抽出
+        2.仕訳IDが journal_dict に存在すれば対応データ表示
+        3.T字勘定ウィジェットの表示 / 非表示切り替え
+        4.表示する場合はクリックしたセル位置に移動（DPI対応）
+        """
+
+        # -------------------------
+        #   仕訳ID取得処理
+        # -------------------------
+        account_name_item = entry_widget.table.item(row, 0)
+        if not account_name_item:
+            return
+
+        label = account_name_item.text().strip()
+
+        if not label:
+            return
+
+        journal_id = label.split("-")[0].strip()
+        journal_obj = None
+        if journal_id in self.journal_dict:
+            journal_obj = self.journal_dict[journal_id]
+            logger.debug(f"[DEBUG] 仕訳ID '{journal_id}' → 仕訳データ:")
+            logger.debug(journal_obj)
+
+            # TODO: journal_obj を JournalEntryWidget に渡して表示する処理に拡張する
+        else:
+            logger.warning(f"[WARNING] {label} '{journal_id}' は journal_dict に存在しません。")
+            return
+
+        # ---------------------------------------------------------
+        #   ここから UI 表示処理
+        # ---------------------------------------------------------
+
+        # === すでに表示中なら非表示 ===
+        if journal_obj.isVisible():
+            journal_obj.hide()
+            logger.debug(f"[BS] {journal_id} → 非表示")
+            return
+
+        # === 表示するので位置合わせ ===
+        table = entry_widget.table
+        item = table.item(row, col)
+        if not item:
+            logger.warning("空セル → 位置移動スキップ")
+            return
+
+        cell_rect = table.visualItemRect(item)
+        local_pos = cell_rect.bottomLeft()
+
+        # テーブル座標 → グローバル（物理）
+        global_pos = table.mapToGlobal(local_pos)
+
+        # DPI補正
+        dpr = self.window().devicePixelRatio()
+        logical_pos = QPoint(
+            int(global_pos.x() / dpr),
+            int(global_pos.y() / dpr)
+        )
+
+        # 最終配置
+        journal_obj.move(logical_pos)
+        journal_obj.show()
+        journal_obj.raise_()
+
 
 # --------------------------------------------------------
 # 動作テスト

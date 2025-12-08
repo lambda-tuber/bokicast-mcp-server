@@ -42,14 +42,14 @@ async def journal_entry(
         journal_data (文字列): 実行する仕訳の詳細データを含むJSONデータ文字列。
                              
                              以下の構造を持ちます:
-                             - journal_id (str): 仕訳のユニークID (例: "J-004")。
+                             - journal_id (str): 仕訳のユニークID (例: "J004")。
                              - debit (list[dict]): 借方項目（勘定科目と金額）のリスト。
                              - credit (list[dict]): 貸方項目（勘定科目と金額）のリスト。
                              - remarks (str, optional): 摘要/備考。
 
     Data Example:
     {
-        "journal_id": "J-004",
+        "journal_id": "J004",
         "debit": [
             {"account": "仕入", "amount": 1000},
             {"account": "荷役費", "amount": 500},
@@ -69,7 +69,7 @@ async def journal_entry(
         logger.info(journal_data)
 
         # journal_data = {
-        #     "journal_id": "J-004", # 👈 journal_id を追加
+        #     "journal_id": "J004", # 👈 journal_id を追加
         #     "debit": [
         #         {"account": "仕入", "amount": 1000},
         #         {"account": "荷役費", "amount": 500},

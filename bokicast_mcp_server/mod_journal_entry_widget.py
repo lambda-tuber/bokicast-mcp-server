@@ -27,11 +27,12 @@ class JournalEntryWidget(QFrame):
     _drag_start_position: QPoint | None = None
     SNAP_DISTANCE = 15 
     
-    def __init__(self, parent, journal_id: str, font: QFont, account_dict: dict[str, TAccountWidget]):
+    def __init__(self, parent, journal_id: str, font: QFont, account_dict: dict[str, TAccountWidget], journal_dict):
         super().__init__(parent)
         self.font = font
         self.fm = QFontMetrics(self.font)
         self.account_dict = account_dict
+        self.journal_dict = journal_dict
         self.journal_id = journal_id
         self.balance_status = "✔ 正常"
 
@@ -227,7 +228,7 @@ class JournalEntryWidget(QFrame):
             t_widget = self.account_dict.get(account_name)
             if t_widget is None:
                 # 新規作成
-                t_widget = TAccountWidget(self.parent(), account_name, self.font)
+                t_widget = TAccountWidget(self.parent(), account_name, self.font, self.journal_dict)
                 self.account_dict[account_name] = t_widget
 
             # 相手勘定が1つの場合は勘定名を付加
@@ -241,7 +242,7 @@ class JournalEntryWidget(QFrame):
         for account_name, amount in credit_items:
             t_widget = self.account_dict.get(account_name)
             if t_widget is None:
-                t_widget = TAccountWidget(self.parent(), account_name, self.font)
+                t_widget = TAccountWidget(self.parent(), account_name, self.font, self.journal_dict)
                 self.account_dict[account_name] = t_widget
 
             if len(debit_items) == 1:
@@ -423,6 +424,14 @@ class JournalEntryWidget(QFrame):
             logger.debug(f"Journal {self.journal_id}: 関連する T勘定 をすべて表示しました")
 
         event.accept()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.hide()         # 非表示にする
+            event.accept()
+            return
+
+        super().keyPressEvent(event)
 
     def enterEvent(self, event):
         self.setStyleSheet("""

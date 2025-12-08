@@ -39,7 +39,7 @@ class BokicastService(QWidget):
         self.conf = conf
         logger.info(f"BokicastService.__init__: called.")
         self.account_dict: dict[str, TAccountWidget] = {}
-
+        self.journal_dict: dict[str, JournalEntryWidget] = {}
         self.main_widget = QWidget()
         self.main_widget.setWindowTitle("Bokicast MCP Server")
         self.main_widget.setStyleSheet("background-color: #F0F0F0;")
@@ -68,7 +68,7 @@ class BokicastService(QWidget):
 
         trial_balance_data = conf.get('決算整理前残高試算表', {})
         for account_name, initial_balance in trial_balance_data.items():
-            t_account = TAccountWidget(self.main_widget, account_name, self.font)
+            t_account = TAccountWidget(self.main_widget, account_name, self.font, self.journal_dict)
             self.account_dict[account_name] = t_account
 
             # 費用、収益勘定は除く。
@@ -95,7 +95,7 @@ class BokicastService(QWidget):
         仕訳データを受け取り、JournalEntryWidgetを生成して表示します。
 
         journal_data = {
-            "journal_id" : "J-004",
+            "journal_id" : "J004",
             "debit": [
                 {"account": "仕入", "amount": 1000},
                 {"account": "荷役費", "amount": 500},
@@ -111,10 +111,10 @@ class BokicastService(QWidget):
         journal_id = journal_data.get("journal_id", "NO_ID")
         logger.info(f"journal_entry: Processing Journal ID: {journal_id}")
         
-        j = JournalEntryWidget(self.main_widget, journal_id, self.font, self.account_dict)
+        j = JournalEntryWidget(self.main_widget, journal_id, self.font, self.account_dict, self.journal_dict)
+        self.journal_dict[journal_id] = j
 
         j.add_journal(journal_data)
-
         #main_x = self.main_widget.x()
         #main_y = self.main_widget.y()
 
@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
     # # 渡すべき仕訳データの例を定義
     # test_journal_data = {
-    #     "journal_id": "J-004", # 👈 journal_id を追加
+    #     "journal_id": "J004", # 👈 journal_id を追加
     #     "debit": [
     #         {"account": "仕入", "amount": 1000},
     #         {"account": "荷役費", "amount": 500},
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
 
     # test_journal_data = {
-    #     "journal_id": "J-004", # 👈 journal_id を追加
+    #     "journal_id": "J004", # 👈 journal_id を追加
     #     "debit": [
     #         {"account": "仕入", "amount": 20000},
     #     ],
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     # s.journal_entry(test_journal_data) 
 
     # test_journal_data = {
-    #     "journal_id": "J-005", # 👈 journal_id を追加
+    #     "journal_id": "J005", # 👈 journal_id を追加
     #     "debit": [
     #         {"account": "現金", "amount": 30000},
     #     ],
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
 
     test_journal_data = {
-        "journal_id": "J-005", # 👈 journal_id を追加
+        "journal_id": "J005", # 👈 journal_id を追加
         "debit": [
             {"account": "仕入", "amount": 20000},
         ],
@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
 
     test_journal_data = {
-        "journal_id": "J-006", # 👈 journal_id を追加
+        "journal_id": "J006", # 👈 journal_id を追加
         "debit": [
             {"account": "現金", "amount": 30000},
         ],
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     s.journal_entry(json.dumps(test_journal_data)) 
 
     test_journal_data = {
-        "journal_id": "J-006", # 👈 journal_id を追加
+        "journal_id": "J006", # 👈 journal_id を追加
         "debit": [
             {"account": "現金", "amount": 30000},
         ],
@@ -237,7 +237,7 @@ if __name__ == "__main__":
     s.journal_entry(json.dumps(test_journal_data)) 
 
     test_journal_data = {
-        "journal_id": "J-007", # 👈 journal_id を追加
+        "journal_id": "J007", # 👈 journal_id を追加
         "debit": [
             {"account": "売上", "amount": 30000},
         ],
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     s.journal_entry(json.dumps(test_journal_data)) 
 
     # test_journal_data = {
-    #     "journal_id": "J-007", # 👈 journal_id を追加
+    #     "journal_id": "J007", # 👈 journal_id を追加
     #     "debit": [
     #         {"account": "損益", "amount": 20000},
     #     ],
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     # s.journal_entry(json.dumps(test_journal_data)) 
 
     # test_journal_data = {
-    #     "journal_id": "J-008", # 👈 journal_id を追加
+    #     "journal_id": "J008", # 👈 journal_id を追加
     #     "debit": [
     #         {"account": "損益", "amount": 10000},
     #     ],
