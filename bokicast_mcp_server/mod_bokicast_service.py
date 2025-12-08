@@ -58,7 +58,7 @@ class BokicastService(QWidget):
         #self.font = QFont("Yu Gothic UI", 14)
 
         self.setup_account_dict(conf)
-        self.bspl = BsPlWidget(self.main_widget, self.font, self.account_dict, self.conf)
+        self.bspl = BsPlWidget(self.main_widget, self.font, self.account_dict, self.conf, "", True)
 
     def setup_account_dict(self, conf: dict[str, Any]):
         account_to_category: Dict[str, str] = {}

@@ -22,18 +22,20 @@ logger = logging.getLogger(__name__)
 class BsPlWidget(QFrame):
     BASE_HEIGHT = 250
 
-    def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], conf: dict[str, Any]):
+    def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], conf: dict[str, Any], title_key, is_update_balance ):
         super().__init__(parent)
         self.font = font
         self.fm = QFontMetrics(self.font)
         self.conf = conf
         self.account_dict = account_dict
+        self.title_key = title_key
+        self.is_update_balance = is_update_balance
 
-        self.assets = AccountEntryWidget(parent, "資産", font, "#92D9C9")
-        self.liabilities = AccountEntryWidget(parent, "負債", font, "#F6A6A6")
-        self.equity = AccountEntryWidget(parent, "純資産", font, "#A8B2F0")
-        self.expense = AccountEntryWidget(parent, "費用", font, "#F7CE9D")
-        self.revenue = AccountEntryWidget(parent, "収益", font, "#C6E49F")
+        self.assets = AccountEntryWidget(parent, f"{self.title_key}資産", font, "#92D9C9")
+        self.liabilities = AccountEntryWidget(parent, f"{self.title_key}負債", font, "#F6A6A6")
+        self.equity = AccountEntryWidget(parent, f"{self.title_key}純資産", font, "#A8B2F0")
+        self.expense = AccountEntryWidget(parent, f"{self.title_key}費用", font, "#F7CE9D")
+        self.revenue = AccountEntryWidget(parent, f"{self.title_key}収益", font, "#C6E49F")
 
         # 初期位置設定
 
