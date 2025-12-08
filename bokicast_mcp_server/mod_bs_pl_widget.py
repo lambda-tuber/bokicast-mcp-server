@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QFrame
 )
 from PySide6.QtGui import QFont, QFontMetrics, QMouseEvent
-from PySide6.QtCore import Qt, QPoint, QTimer
+from PySide6.QtCore import Qt, QPoint, QTimer, QEvent
 import sys
 from typing import Any, Dict, List
 import yaml
@@ -22,20 +22,20 @@ logger = logging.getLogger(__name__)
 class BsPlWidget(QFrame):
     BASE_HEIGHT = 250
 
-    def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], conf: dict[str, Any], title_key, is_update_balance ):
+    def __init__(self, parent, font: QFont, account_dict: dict[str, TAccountWidget], title_key):
         super().__init__(parent)
         self.font = font
         self.fm = QFontMetrics(self.font)
-        self.conf = conf
         self.account_dict = account_dict
         self.title_key = title_key
-        self.is_update_balance = is_update_balance
-
-        self.assets = AccountEntryWidget(parent, f"{self.title_key}資産", font, "#92D9C9")
-        self.liabilities = AccountEntryWidget(parent, f"{self.title_key}負債", font, "#F6A6A6")
-        self.equity = AccountEntryWidget(parent, f"{self.title_key}純資産", font, "#A8B2F0")
-        self.expense = AccountEntryWidget(parent, f"{self.title_key}費用", font, "#F7CE9D")
-        self.revenue = AccountEntryWidget(parent, f"{self.title_key}収益", font, "#C6E49F")
+        self.setMouseTracking(True)
+        
+        title_prefix = f"{self.title_key}:" if self.title_key != "" else ""
+        self.assets = AccountEntryWidget(self, f"{title_prefix}資産", font, "#92D9C9")
+        self.liabilities = AccountEntryWidget(parent, f"{title_prefix}負債", font, "#F6A6A6")
+        self.equity = AccountEntryWidget(parent, f"{title_prefix}純資産", font, "#A8B2F0")
+        self.expense = AccountEntryWidget(parent, f"{title_prefix}費用", font, "#F7CE9D")
+        self.revenue = AccountEntryWidget(parent, f"{title_prefix}収益", font, "#C6E49F")
 
         # 初期位置設定
 
@@ -50,10 +50,6 @@ class BsPlWidget(QFrame):
         self.assets.move(center_x, center_y)
         self.expense.move(self.assets.x(), self.assets.y() + self.assets.height()+20)
 
-        self.update_bspl_timer = QTimer()
-        self.update_bspl_timer.timeout.connect(lambda: self._update_bspl())
-        self.update_bspl_timer.start(1000)
-
         self.update_bs_pos_timer = QTimer()
         self.update_bs_pos_timer.timeout.connect(lambda: self._update_bs_pos())
         self.update_bs_pos_timer.start(200)
@@ -62,14 +58,10 @@ class BsPlWidget(QFrame):
         self.update_pl_pos_timer.timeout.connect(lambda: self._update_pl_pos())
         self.update_pl_pos_timer.start(200)
 
-        self.assets.show()
-        self.liabilities.show()
-        self.equity.show()
-        self.expense.show()
-        self.revenue.show()
+        self.update_bspl_timer = QTimer()
+        self.update_bspl_timer.timeout.connect(lambda: self._update_bspl())
+        self.update_bspl_timer.start(1000)
 
-
-        # ダブルクリックハンドラ接続
         self.assets.table.cellDoubleClicked.connect(
             lambda row, col: self._on_account_clicked(self.assets, row, col)
         )
@@ -86,70 +78,53 @@ class BsPlWidget(QFrame):
             lambda row, col: self._on_account_clicked(self.revenue, row, col)
         )
 
+        self.show()
+
+
     def _update_bspl(self):
         self._update_bspl_balance()
         self._update_bspl_widths()
         self._update_bspl_height()
 
     def _update_bspl_balance(self):
-        accounts_conf = self.conf.get('勘定', {})
-
-        self._add_balances_to_entry_widget(
-            category_name='資産', 
-            entry_widget=self.assets, 
-            accounts_list=accounts_conf.get('資産', [])
-        )
-
-        self._add_balances_to_entry_widget(
-            category_name='負債', 
-            entry_widget=self.liabilities, 
-            accounts_list=accounts_conf.get('負債', [])
-        )
-        
-        self._add_balances_to_entry_widget(
-            category_name='純資産', 
-            entry_widget=self.equity, 
-            accounts_list=accounts_conf.get('純資産', [])
-        )
-
-        self._add_balances_to_entry_widget(
-            category_name='費用', 
-            entry_widget=self.expense, 
-            accounts_list=accounts_conf.get('費用', [])
-        )
-
-        self._add_balances_to_entry_widget(
-            category_name='収益', 
-            entry_widget=self.revenue, 
-            accounts_list=accounts_conf.get('収益', [])
-        )
-        
-
-    def _add_balances_to_entry_widget(self, category_name: str, entry_widget: AccountEntryWidget, accounts_list: List[str]):
         """
-        特定のカテゴリに属する勘定科目の残高を取得し、対応する AccountEntryWidget に追加します。
+        全勘定科目 (self.account_dict) を走査し、
+        TAccountWidget.category に基づいて各セクション(資産・負債など)に表示する。
         """
-        #entry_widget.clear_all()
+        
+        # カテゴリ名と格納先ウィジェットのマッピング
+        widget_map = {
+            '資産': self.assets,
+            '負債': self.liabilities,
+            '純資産': self.equity,
+            '費用': self.expense,
+            '収益': self.revenue
+        }
 
-        for account_name in accounts_list:
-            # account_dictに該当するTAccountWidgetが存在するか確認
-            if account_name in self.account_dict:
-                t_account = self.account_dict[account_name]
-                
-                # TAccountWidgetから現在の残高を取得
+        # account_dict に登録されている全 TAccountWidget をループ
+        for account_name, t_account in self.account_dict.items():
+            
+            # TAccountWidget からカテゴリを取得
+            # (t_account.category が str 型で "資産" 等を保持している前提)
+            category = getattr(t_account, 'category', None)
+
+            target_widget = widget_map.get(category)
+
+            if target_widget:
+                # 残高取得
                 balance = t_account.get_balance()
-                if category_name == '負債' or category_name == '純資産' or category_name == '収益':
+
+                # 貸方区分（負債・純資産・収益）はマイナスで管理されている場合があるため、
+                # 表示用に絶対値にする
+                if category in ['負債', '純資産', '収益']:
                     balance = abs(balance)
 
-                entry_widget.update_item(account_name, balance)
-                
-                # 残高が0でない場合にのみ追加（任意だが、通常ゼロ残高は表示しない）
-                # if balance != 0:
-                #     entry_widget.update_item(account_name, balance)
-                # else:
-                #     logger.debug(f"{account_name} の残高は0のためスキップ。")
+                # 各セクションウィジェットに追加/更新
+                target_widget.update_item(account_name, balance)
+            
             else:
-                logger.debug(f"TAccountWidget ({account_name}) が account_dict に見つかりません。")
+                logger.error(f"{account_name}: Unknown category '{category}'")
+                pass
 
     def _update_bs_pos(self):
         # 1. Assetsの位置は固定
@@ -359,7 +334,8 @@ class BsPlWidget(QFrame):
                     "純資産": self._collect_category_dict("純資産")
                 }
         
-        return json.dumps(data, ensure_ascii=False, indent=4)
+        return data
+        #return json.dumps(data, ensure_ascii=False, indent=4)
 
 
     def get_pl_data(self):
@@ -388,31 +364,50 @@ class BsPlWidget(QFrame):
                     "収益": self._collect_category_dict("収益")
                 }
 
-        return json.dumps(data, ensure_ascii=False, indent=4)
+        return data
 
     def _collect_category_dict(self, category_name: str) -> Dict[str, int]:
         """
-        指定されたカテゴリの勘定科目と残高の辞書を作成するヘルパーメソッド
-        形式: {"科目名": 金額, ...}
+        指定されたカテゴリの勘定科目と残高の辞書を作成するヘルパーメソッド。
+        TAccountWidgetのカテゴリ情報に基づいて残高を集計する。
         """
         result = {}
-        accounts_list = self.conf.get('勘定', {}).get(category_name, [])
-
-        for account_name in accounts_list:
-            if account_name in self.account_dict:
-                t_account = self.account_dict[account_name]
+        
+        # self.account_dict にある全ての TAccountWidget を走査
+        for account_name, t_account in self.account_dict.items():
+            
+            # TAccountWidgetのカテゴリが要求されたカテゴリと一致するか確認
+            if getattr(t_account, 'category', None) == category_name:
+                
+                # TAccountWidgetから現在の残高を取得
                 balance = t_account.get_balance()
 
                 # 負債・純資産・収益は貸方(マイナス)で管理されているため絶対値にする
+                # このヘルパーメソッドは純資産や負債も呼ばれる可能性があるため、ロジックは維持
                 if category_name in ['負債', '純資産', '収益']:
+                    # 注意: '負債', '純資産'は get_bs_data から呼ばれますが、ロジックの汎用性を維持
                     balance = abs(balance)
 
                 # 残高が0でない場合のみ追加
                 if balance != 0:
                     result[account_name] = balance
-        
+            
         return result
 
+
+    def hide(self):
+        self.assets.hide()
+        self.liabilities.hide()
+        self.equity.hide()
+        self.expense.hide()
+        self.revenue.hide()
+
+    def show(self):
+        self.assets.show()
+        self.liabilities.show()
+        self.equity.show()
+        self.expense.show()
+        self.revenue.show()
 
 # --------------------------------------------------------
 # 動作テスト

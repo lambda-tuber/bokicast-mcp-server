@@ -28,12 +28,13 @@ class TAccountWidget(QFrame):
     _drag_start_position: QPoint | None = None # 💡 TAccountWidget用ドラッグ開始位置
     SNAP_DISTANCE = 15 
     
-    def __init__(self, parent, account_name: str, font: QFont, journal_dict):
+    def __init__(self, parent, account_name: str, font: QFont, journal_dict, category):
         super().__init__(parent)
         self.font = font
         self.fm = QFontMetrics(self.font)
         self.journal_dict = journal_dict
-
+        self.category = category
+        
         # QFrameのプロパティで枠の形状を設定（スタイルシートの補助として）
         self.setFrameShape(QFrame.Box)
         self.setLineWidth(1)
