@@ -140,5 +140,7 @@ AI×東方キャラによる、新感覚の簿記勉強会をお楽しみくだ�
 - ✓ 最後に、決算報告として貸借対照表を作成する流れを
 - ✓ ツールで一通りシミュレートしてみたよ 
 #### 動画
-[![霊夢と魔理沙と簿記キャスト その16](https://img.youtube.com/vi/ZGZjuHAIYbE/hqdefault.jpg)](https://youtu.be/ZGZjuHAIYbE)
+[![霊夢と魔理沙と簿記キャスト その16](https://img.youtube.com/vi/ZGZjuHAIYbE/default.jpg)](https://youtu.be/ZGZjuHAIYbE)
+
+
 ----
