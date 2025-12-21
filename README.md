@@ -26,8 +26,7 @@ mcp-name: io.github.lambda-tuber/bokicast-mcp-server
 VOICEVOXによる自然な音声と、会話内容に合わせて表情が変わるアバターが特徴。  
 AI×東方キャラによる、新感覚の簿記勉強会をお楽しみください。
 
-- シリーズまとめはこちら  
-  https://www.youtube.com/playlist?list=PLML1P2WReMnmcc8C__lQsz3c_nBFaXRB_
+- [シリーズまとめはこちら](https://www.youtube.com/playlist?list=PLML1P2WReMnmcc8C__lQsz3c_nBFaXRB_)
 
 ----
 
