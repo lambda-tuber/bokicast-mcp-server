@@ -31,75 +31,114 @@ AI×東方キャラによる、新感覚の簿記勉強会をお楽しみくだ�
 
 ----
 
-### その1
+### 霊夢と魔理沙と簿記キャスト その1
 #### 概要
 ぷぶ(pvv)の立ち絵は、YMMのZIP構成に合わせています。  
 霊夢と魔理沙と簿記の話をしてみた。  
 問題を解いてもらって、解説してもらったよ。  
 その他有価証券の追加取得。関連会社へ。  
 #### 動画
-[![その1](https://img.youtube.com/vi/As4WjiHkuFg/hqdefault.jpg)](https://youtu.be/As4WjiHkuFg)
+[![霊夢と魔理沙と簿記キャスト その1](https://img.youtube.com/vi/As4WjiHkuFg/hqdefault.jpg)](https://youtu.be/As4WjiHkuFg)
 
 ----
 
-### その2
+### 霊夢と魔理沙と簿記キャスト その2
 #### 概要
 霊夢と魔理沙と簿記の話をしてみた。  
 簿記の興味深い観点が話題になったよ。  
 最終的に、試験合格を応援してもらった。  
 テクニカルな観点で簿記システムを考察してみた。  
 #### 動画
-[![その2](https://img.youtube.com/vi/RWjC9qs6Z0k/hqdefault.jpg)](https://youtu.be/RWjC9qs6Z0k)
+[![霊夢と魔理沙と簿記キャスト その2](https://img.youtube.com/vi/RWjC9qs6Z0k/hqdefault.jpg)](https://youtu.be/RWjC9qs6Z0k)
 
 ----
 
-### その3 ROI①
+### 霊夢と魔理沙と簿記キャスト その3 ROI①
 #### 概要
 霊夢と魔理沙と簿記の話をしてみた。  
 システム開発やSW開発のプロジェクトにおける損益計算について話題になったよ。  
 そこから、管理会計の指標をどうしようか、相談てみた。  
 #### 動画
-[![その3](https://img.youtube.com/vi/z9cWy9uCwt4/hqdefault.jpg)](https://youtu.be/z9cWy9uCwt4)
+[![霊夢と魔理沙と簿記キャスト その3](https://img.youtube.com/vi/z9cWy9uCwt4/hqdefault.jpg)](https://youtu.be/z9cWy9uCwt4)
 
 ----
 
-### その4 ROI②
+### 霊夢と魔理沙と簿記キャスト その4 ROI②
 #### 概要
 霊夢と魔理沙と簿記の話をしてみた。  
 システム開発やSW開発のプロジェクトにおける損益計算について話題になったよ。  
 そこから、管理会計の指標をどうしようか、相談てみた  
 #### 動画
-[![その4](https://img.youtube.com/vi/QsGibtWQwDo/hqdefault.jpg)](https://youtu.be/QsGibtWQwDo)
+[![霊夢と魔理沙と簿記キャスト その4](https://img.youtube.com/vi/QsGibtWQwDo/hqdefault.jpg)](https://youtu.be/QsGibtWQwDo)
 
 ----
 
-### その5 ROI③
+### 霊夢と魔理沙と簿記キャスト その5 ROI③
 #### 概要
 霊夢と魔理沙と簿記の話をしてみた。  
 システム開発やSW開発のプロジェクトにおける損益計算について話題になったよ。  
 そこから、管理会計の指標をどうしようか、相談てみた  
 #### 動画
-[![その5](https://img.youtube.com/vi/dqPk61mCdwM/hqdefault.jpg)](https://youtu.be/dqPk61mCdwM)
+[![霊夢と魔理沙と簿記キャスト その5](https://img.youtube.com/vi/dqPk61mCdwM/hqdefault.jpg)](https://youtu.be/dqPk61mCdwM)
 
 
 ----
 
-### その6 資産グループの減損
+### 霊夢と魔理沙と簿記キャスト その6 資産グループの減損
 #### 概要
 資産グループの減損損失の問題をやったよ。  
 派生して、土地の減損について調べたけど、よくわからんかった。  
 引き続き、調査することになったよ。  
 #### 動画
-[![その6](https://img.youtube.com/vi/HdYR-fcvXsk/hqdefault.jpg)](https://youtu.be/HdYR-fcvXsk)
+[![霊夢と魔理沙と簿記キャスト その6](https://img.youtube.com/vi/HdYR-fcvXsk/hqdefault.jpg)](https://youtu.be/HdYR-fcvXsk)
 
 ----
 
-### その7 成果連結の調整仕訳
+### 霊夢と魔理沙と簿記キャスト その7 成果連結の調整仕訳
 #### 概要
 成果連結の仕訳問題をやったよ。  
 建物に評価差額がある場合の減価償却の調整仕訳だね。  
 #### 動画
-[![その7](https://img.youtube.com/vi/OcJYMCeGFSo/hqdefault.jpg)](https://youtu.be/OcJYMCeGFSo)
+[![霊夢と魔理沙と簿記キャスト その7](https://img.youtube.com/vi/OcJYMCeGFSo/hqdefault.jpg)](https://youtu.be/OcJYMCeGFSo)
+
+----
+
+### 霊夢と魔理沙と簿記キャスト その14
+#### 概要
+今回は「簿記キャスト」というMCPツールを作ったので、霊夢と魔理沙にお披露目してみたよ。  
+このツールは、霊夢と魔理沙と一緒にやっている簿記の勉強会で、問題を解いたり説明したりするときに、画面上で仕訳や勘定の流れを確認できるものだよ。  
+まずは、簡単な使い方を紹介するね。  
+#### 動画
+[![霊夢と魔理沙と簿記キャスト その14](https://img.youtube.com/vi/ksl0DX5ZdKw/hqdefault.jpg)](https://youtu.be/ksl0DX5ZdKw)
 
 
+----
+
+### 霊夢と魔理沙と簿記キャスト その15
+#### 概要
+今回は「簿記キャスト」というMCPツールを作ったので、霊夢と魔理沙にお披露目してみたよ。
+- ✓ 貸借や損益の表(Box)は、高さが金額に比例して表示される。
+- ✓ 期中でも、貸借と損益を合算すれば貸借が一致し、表(Box)の高さもそろう。
+- ✓ 仕訳には貸借が一致しているかのバリデーションが組み込まれている。
+- ✓ 試しに不正な仕訳を入力してみたところ、しっかりエラーで弾かれた。
+- ✓ 簿記システムでは、貸借一致は仕訳段階で必須のチェック。
+- ✓ 一方、T字勘定では残高が最も重要なポイントとなる。
+#### 動画
+[![霊夢と魔理沙と簿記キャスト その15](https://img.youtube.com/vi/W5aOI38Shyk/maxresdefault.jpg)](https://youtu.be/W5aOI38Shyk)
+
+----
+
+### 霊夢と魔理沙と簿記キャスト その16
+#### 概要
+今回は「簿記キャスト」というMCPツールを作ったので、霊夢と魔理沙にお披露目してみたよ。  
+いじってたら一部バグも見つかっちゃったので、あとで直しておくね。
+- ✓ 残高試算表の「残高」ってなに？
+- ✓ 損益の利益を貸借へ振り替える仕組みのこと
+- ✓ 損益計算書は経営成績、貸借対照表は財政状態を示す
+- ✓ 売上・仕入などの勘定を締めて損益勘定を作成
+- ✓ 損益勘定の残高を利益剰余金へ振り替え
+- ✓ 最後に、決算報告として貸借対照表を作成する流れを
+- ✓ ツールで一通りシミュレートしてみたよ 
+#### 動画
+[![霊夢と魔理沙と簿記キャスト その16](https://img.youtube.com/vi/ZGZjuHAIYbE/hqdefault.jpg)](https://youtu.be/ZGZjuHAIYbE)
 ----

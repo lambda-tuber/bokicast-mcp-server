@@ -13,3 +13,5 @@ pty-mcp-server/*
 **/released/*
 **/build/*
 *.mcpb
+todo*
+
