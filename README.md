@@ -19,6 +19,27 @@ mcp-name: io.github.lambda-tuber/bokicast-mcp-server
 
 ---
 
+
+## Requirements
+- Windows OS
+- pythonがインストールされていること
+- Claudeが起動していること
+- [voicevox](https://voicevox.hiroshiba.jp/)が起動していること
+
+---
+
+## インストール
+
+1. pvv-mcp-serverのインストール
+    ```bash
+    > pip install bokicast-mcp-server
+    ```
+
+2. MCPBのインストール  
+- [リリースアセット](https://github.com/lambda-tuber/bokicast-mcp-server/tags)よりMCPBファイルをダウンロードし、Claudeにドロップする。
+
+---
+
 ## Youtube 動画一覧
 この動画は、音声対話MCP「pvv」を使って制作された簿記学習バラエティです。  
 東方Projectの霊夢と魔理沙が登場し、簿記の基礎から応用、過去問や例題まで、会話形式で楽しく学んでいきます。  
@@ -31,7 +52,6 @@ AI×東方キャラによる、新感覚の簿記勉強会をお楽しみくだ�
 
 ### 霊夢と魔理沙と簿記キャスト その1
 #### 概要
-ぷぶ(pvv)の立ち絵は、YMMのZIP構成に合わせています。  
 霊夢と魔理沙と簿記の話をしてみた。  
 問題を解いてもらって、解説してもらったよ。  
 その他有価証券の追加取得。関連会社へ。  
