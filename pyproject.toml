@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bokicast-mcp-server"
 version = "0.0.1"
-description = "MCP server for VOICEVOX text-to-speech synthesis"
+description = "Bokicast MCP Server is an MCP server designed for a brand-new style of bookkeeping study."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
@@ -24,7 +24,7 @@ dependencies = [
 urls = { "Homepage" = "https://github.com/lambda-tuber/bokicast-mcp-server" }
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-keywords = ["VOICEVOX", "MCP", "FastMCP", "TTS", "AI", "voice synthesis"]
+keywords = ["accounting", "boki", "MCP", "FastMCP", "TTS", "AI", "voice synthesis"]
 
 [project.optional-dependencies]
 dev = [
