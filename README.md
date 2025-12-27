@@ -1,8 +1,7 @@
 # Bokicast MCP Server
 
 **Presented by Aska Lanclaude**  
-
-**Bokicast MCP Server**は、Python で実装した、**簿記キャスト MCP Server** です。  
+Bokicast MCP Server is an MCP server designed for a brand-new style of bookkeeping study.
 mcp-name: io.github.lambda-tuber/bokicast-mcp-server
 
 ---

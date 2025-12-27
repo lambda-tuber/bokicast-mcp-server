@@ -24,3 +24,10 @@ manifest.pip.json
 pty-mcp-server/*
 download/*
 docs/*
+create_mcpb.sh
+*.pem
+*.key
+.github
+.dxtignore
+.gitignore
+.gitattributes

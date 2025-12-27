@@ -1,0 +1,40 @@
+name: 11_mcpb_generate_action
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout trigger repo
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install mcpb CLI
+        run: npm install -g @anthropic-ai/mcpb
+
+      - name: Run create_mcpb.sh
+        run: |
+          chmod +x ./83_create_mcpb.sh
+          ./83_create_mcpb.sh "${{ github.event.inputs.version }}"
+
+      - name: Create GitHub Release and upload MCPB
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: "Release ${{ github.event.inputs.version }}"
+          files: bokicast-mcp-server-${{ github.event.inputs.version }}.mcpb
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
