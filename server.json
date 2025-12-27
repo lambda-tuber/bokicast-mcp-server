@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "io.github.lambda-tuber/bokicast-mcp-server",
-  "description": "MCP Server for VOICEVOX implemented in Python",
+  "description": "Bokicast MCP Server is an MCP server designed for a brand-new style of bookkeeping study.",
   "repository": {
     "url": "https://github.com/lambda-tuber/bokicast-mcp-server",
     "source": "github"
